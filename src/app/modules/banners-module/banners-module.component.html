@@ -1,0 +1,17 @@
+<div class="wrapper">
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #snav mode="over" position="end" disableClose>
+      <mat-nav-list>
+        <app-add-or-update-banner (collapse)="snav.toggle()"></app-add-or-update-banner>
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <mat-toolbar color="primary">
+        <h1>Banners List</h1>
+        <div class="spacer"></div>
+        <button *ngIf="!snav.opened" mat-raised-button (click)="snav.toggle();">Add New Banner</button>
+      </mat-toolbar>
+        <app-banners-list (openDrawer)="snav.toggle()"></app-banners-list>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

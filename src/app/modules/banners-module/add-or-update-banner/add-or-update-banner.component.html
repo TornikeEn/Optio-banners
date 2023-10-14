@@ -1,0 +1,110 @@
+<ng-container *ngIf="httpRequestSub?.closed; else loader">
+    <form class="banners-form" spellcheck="false" autocomplete="off" [formGroup]="bannerForm" (ngSubmit)="saveBanner()">
+        <h1>{{editMode ? 'Update Banner' : 'Add Banner'}}</h1>
+        <div [ngClass]="{'banner-image-wrapper': true, 'd-none': displayImageChecker()}">
+            <button *ngIf="removeButtonDisplayChecker()" class="remove-button" type="button" (click)="onRemoveButton()">
+                <mat-icon color="warn">delete</mat-icon>
+            </button>
+            <img [src]="imageSrc" class="banner-image" alt="banner image" (load)="handleImageLoading()" (error)="handleImageError()">
+        </div>
+        <div *ngIf="displayImageChecker()" class="banner-image-not-found">
+            <h3 class="alert-title">Banner Image Not Found</h3>
+            <p class="alert-content">Please Upload an Image</p>
+        </div>
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Entity ID</mat-label>
+                <input matInput type="text" formControlName="id">
+            </mat-form-field>
+            <mat-form-field class="upload-image" appearance="outline">
+                <mat-toolbar>
+                <input matInput placeholder="Select Image" [value]="editMode && !selectedFile ? 'Select New Image' : selectedFile?.name" [readonly]="true"/>
+                <button type="button" mat-flat-button color="primary" (click)="openFileInput()">Upload</button>
+                </mat-toolbar>
+                <input #fileInput type="file"id="fileInput" name="fileInput" accept="image/*" (change)="selectFile($event)"/>
+            </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Name</mat-label>
+                <input matInput type="text" formControlName="name">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Channel</mat-label>
+                <mat-select formControlName="channelId">
+                    <mat-option *ngFor="let channel of channels" [value]="channel.key">
+                    {{channel.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Language</mat-label>
+                <mat-select formControlName="language">
+                    <mat-option *ngFor="let language of languages" [value]="language.key">
+                    {{language.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Zone</mat-label>
+                <mat-select formControlName="zoneId">
+                    <mat-option *ngFor="let zone of zones" [value]="zone.key">
+                    {{zone.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Priority</mat-label>
+                <input matInput type="number" min="0" formControlName="priority">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>URL</mat-label>
+                <input matInput type="text" formControlName="url">
+            </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="startDate" formControlName="startDate">
+                <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
+                <mat-datepicker #startDate></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>End Date</mat-label>
+                <input matInput [matDatepicker]="endDate" formControlName="endDate">
+                <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
+                <mat-datepicker #endDate></mat-datepicker>
+            </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="active">
+                    <mat-option [value]="true">Active</mat-option>
+                    <mat-option [value]="false">Inactive</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Labels</mat-label>
+                <mat-select formControlName="labels" multiple="true">
+                    <mat-option *ngFor="let label of labels" [value]="label.key">
+                    {{label.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="form-row action-buttons">
+            <button type="submit" mat-raised-button color="primary">Save</button>
+            <button type="reset" mat-raised-button (click)="collapseForm(); collapse.emit(true)">Cancel</button>
+        </div>
+    </form>
+</ng-container>
+<ng-template #loader>
+    <div class="loader">
+        <mat-spinner></mat-spinner>
+    </div>
+</ng-template>

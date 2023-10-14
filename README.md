@@ -57,4 +57,4 @@ Banner Delete: DELETE request to /api/v2/banners/remove
 
 ## Acces Token
 
-JSON Web Token is already setted. If the project will be crashed because of expired token, you should set a new token value to the variable `userToken`  in `jwt-interceptor.ts` file. File path: `src/app/shared/interceptors/jwt-interceptor.ts`
+JSON Web Token is already setted. If the project will be crashed because of expired token, you should assign a new token value to the variable `userToken`  in `jwt-interceptor.ts` file. File path: `src/app/shared/interceptors/jwt-interceptor.ts`

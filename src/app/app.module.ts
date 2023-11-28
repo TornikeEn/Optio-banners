@@ -10,6 +10,12 @@ import { AppComponent } from './app.component';
 import { ApiInterceptor } from './shared/interceptors/api-interceptor';
 import { JwtInterceptor } from './shared/interceptors/jwt-interceptor';
 
+import { StoreModule } from '@ngrx/store';
+import { bannersReducer } from './modules/banners-module/store/banners.reducer';
+import { BannersEffects } from './modules/banners-module/store/banners.effects';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -18,7 +24,12 @@ import { JwtInterceptor } from './shared/interceptors/jwt-interceptor';
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    StoreModule.forRoot({ 
+      banners: bannersReducer
+     }),
+    EffectsModule.forRoot(BannersEffects),
+    StoreDevtoolsModule.instrument({})
   ],
   providers: [
     {

@@ -19,7 +19,7 @@ export class JwtInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const userToken = `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImludGVybnNoaXBAb3B0aW8uYWkiLCJzdWIiOiJpbnRlcm5zaGlwIiwiaW50ZXJuc2hpcElkIjoidG9ybmlrZS5lbnVxaWR6ZUBnbWFpbC5jb20iLCJpYXQiOjE2OTY2NTA4MjIsImV4cCI6MTY5NzUxNDgyMn0.fyqASGfDGqP4JPj5FFrQQOaUECA6joxcsbFTcjdShDvLZrnsYwU9T3Mrfov-YnJzKtvVtkwAaUGtQv7C6o1G_w`;
+    const userToken = `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQG9wdGlvLmFpIiwic3ViIjoiYWRtaW4iLCJpYXQiOjE2OTk0NTE2NDIsImV4cCI6MTcwMTE3OTY0Mn0.jWssoPCAZWI6sg6w3Hy93Htnj6e_Up1T52jVOl1KttRaCijUFgH7Zov47vUjyy1dTIHbxrH3J_G91_PCV_tRnA`;
 
     req = req.clone({
       setHeaders: {

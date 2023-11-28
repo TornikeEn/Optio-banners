@@ -11,7 +11,7 @@ import { getBannersListPayload, referenceDataPayload, removeBannerImagePayload, 
 export class BannersApiService {
   constructor(private _http: HttpClient) {}
 
-  getBannersList(payload: getBannersListPayload): Observable<any> {
+  getBannersList(payload: getBannersListPayload | undefined): Observable<any> {
     return this._http.post('banners/find', payload);
   }
   

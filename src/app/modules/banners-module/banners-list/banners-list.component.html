@@ -1,4 +1,4 @@
-<div class="banners-list-container" [ngClass]="{'d-none': !httpRequestSubscription.closed}">
+<div class="banners-list-container" [ngClass]="{'d-none': (selectLoading$ | async)}">
   <div class="list-filters">
     <mat-form-field class="list-search" appearance="outline">
       <mat-label>Search</mat-label>
@@ -6,7 +6,7 @@
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Sort by</mat-label>
-      <mat-select [(value)]="filterParams['sortBy']" (selectionChange)="sortByProperty($event)">
+      <mat-select [value]="filterParams['sortBy']" (selectionChange)="sortByProperty($event)">
         <mat-option [value]="null">Default Order</mat-option>
         <mat-option [value]="'name.raw'">Name</mat-option>
         <mat-option [value]="'active'">Status</mat-option>
@@ -17,15 +17,15 @@
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Sort Direction</mat-label>
-      <mat-select [(value)]="filterParams['sortDirection']" (selectionChange)="sortByDirection($event)">
+      <mat-select [value]="filterParams['sortDirection']" (selectionChange)="sortByDirection($event)">
         <mat-option [value]="null">Default Direction</mat-option>
         <mat-option [value]="'asc'">Ascending</mat-option>
         <mat-option [value]="'desc'">Descending</mat-option>
       </mat-select>
     </mat-form-field>
   </div>
-  <div class="mat-elevation-z8" [ngClass]="{'d-none': dataSource.data.length === 0}">
-    <table mat-table [dataSource]="dataSource">
+  <div class="mat-elevation-z8" [ngClass]="{'d-none': (bannersListSelector$ | async)?.entities.length === 0}">
+    <table mat-table [dataSource]="(bannersListSelector$ | async)?.entities">
       <ng-container matColumnDef="image">
         <th mat-header-cell *matHeaderCellDef>Image</th>
         <td mat-cell *matCellDef="let element">
@@ -84,16 +84,16 @@
       [pageSizeOptions]="pageSizeOptions"
       [pageIndex]="pageIndex"
       [pageSize]="pageSize"
-      [length]="dataLength"
+      [length]="(bannersListSelector$ | async)?.total"
       (page)="changePage($event)"
     >
     </mat-paginator>
   </div>
-  <div *ngIf="httpRequestSubscription?.closed && (dataSource.data.length === 0 || errorDetected)" class="noRecords">
+  <div *ngIf="!(selectLoading$ | async) && ((bannersListSelector$ | async)?.entities.length === 0 || (errorDetectedSelector$ | async))" class="noRecords">
     <h1>Records Not Found</h1>
     <img src="/assets/media/no-data.png" alt="No Records">
   </div>
 </div>
-<div *ngIf="!httpRequestSubscription.closed" class="loader">
+<div *ngIf="(selectLoading$ | async)" class="loader">
   <mat-spinner></mat-spinner>
 </div>

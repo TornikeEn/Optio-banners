@@ -1,18 +1,23 @@
 import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Store } from '@ngrx/store';
+
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 
-import { BannersApiService } from 'src/app/shared/httpClient/api/banners-api.service';
-import { BannersService } from '../banners.service';
+import { BannersState } from '../store/banners.reducer';
+import { getBannersList, onEditBanner, removeBanner } from '../store/banners.actions';
+import { selectBannersList, selectErrorDetected, selectLoading } from '../store/banners.selector';
+
 import { SessionStorageService } from 'src/app/shared/services/sessionStorage.service';
 
 import { environment } from 'src/environments/environment';
 
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+
+
 
 @Component({
   selector: 'app-banners-list',
@@ -21,40 +26,35 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 })
 
 export class BannersListComponent implements OnInit, AfterViewInit, OnDestroy {
+  blobPath: string = `${environment.apiUrl}/blob/`;
+
   displayedColumns: string[] = ['image', 'name', 'status', 'zone', 'startDate', 'endDate', 'labels', 'actions'];
-  dataSource = new MatTableDataSource();
-  blobPath: string = `${environment.apiUrl}/blob/`
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   pageSizeOptions: number[] = [10, 30, 50];
   pageSize: number = 10;
   pageIndex: number = 0;
-  dataLength: number | undefined;
 
-  filterParams!: Record<string,any>
+  filterParams!: Record<string,any>;
   searchKeyUp$ = new Subject<string>();
-  httpRequestSubscription = {closed: false};
   initialTableSub!: Subscription;
-  errorDetected: boolean = false;
+
   @Output() openDrawer: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+  bannersListSelector$ = this._store.select(selectBannersList);
+  errorDetectedSelector$ = this._store.select(selectErrorDetected);
+  selectLoading$ = this._store.select(selectLoading);
   
-  constructor(private _bannersApiService: BannersApiService, private _dialog: MatDialog, private _bannersService: BannersService, private _sessionStorageService: SessionStorageService) {}
+  constructor(private _dialog: MatDialog, private _sessionStorageService: SessionStorageService, private _store: Store<BannersState>) {}
 
   ngOnInit(): void {
     this.getFilterParams();
-    this.initialTableSub = this._bannersService.updateBannersList$.subscribe(update => {
-      if(update) {
-        this.getBannersList(this.filterParams);
-      }
-    });
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
     this.searchKeyUp$.pipe(debounceTime(1000), distinctUntilChanged()).subscribe((value: string) => {
       this.paginator.firstPage();
       this.filterParams = {...this.filterParams, search: value}
-      this.saveFilterParams();
       this.getBannersList(this.filterParams);
     });  
   }
@@ -72,23 +72,11 @@ export class BannersListComponent implements OnInit, AfterViewInit, OnDestroy {
         pageSize: this.pageSize
       };
     }
+    this.getBannersList(this.filterParams);
   }
 
   getBannersList(params: any) {
-    this.httpRequestSubscription = this._bannersApiService.getBannersList(params).subscribe(res => {
-      if (res.success) {
-        this.dataLength = res.data.total;
-        this.dataSource = new MatTableDataSource(res.data.entities);
-        this.dataSource.data.map((element: any) => {
-          element.imgSrc = `${this.blobPath}${element.fileId}?${Math.random()}`
-          return element;
-        })
-      } else {
-        this.errorDetected = true;
-      }
-    }, (error) => {
-      this.errorDetected = true;
-    })
+    this._store.dispatch(getBannersList({payload: params, blobPath: this.blobPath}));
   }
 
   applySearch(event: Event) {
@@ -97,28 +85,19 @@ export class BannersListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   
   sortByProperty(event: MatSelectChange): void {
-    const sortValue = event.value;
-    this.filterParams['sortBy'] = sortValue;
-    this.saveFilterParams();
+    this.filterParams = {...this.filterParams, sortBy: event.value}
     this.getBannersList(this.filterParams);
   }
 
   sortByDirection(event: MatSelectChange): void {
-    const sortDirectionValue = event.value;
-    this.filterParams['sortDirection'] = sortDirectionValue;
-    this.saveFilterParams();
+    this.filterParams = {...this.filterParams, sortDirection: event.value}
     this.getBannersList(this.filterParams);
-  }
-
-  saveFilterParams(): void {
-    this._sessionStorageService.set('bannersListFilterParams', this.filterParams)
   }
 
   changePage(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.filterParams['pageIndex'] = this.pageIndex;
-    this.filterParams['pageSize'] = this.pageSize;
+    this.filterParams = {...this.filterParams, pageIndex: this.pageIndex, pageSize: this.pageSize}
     this.getBannersList(this.filterParams)
   }
 
@@ -133,16 +112,14 @@ export class BannersListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result) {
-        this.httpRequestSubscription = this._bannersApiService.removeBanner({id}).subscribe((res) => {
-          this.getBannersList(this.filterParams);
-        });
+        this._store.dispatch(removeBanner({payload: {id}, blobPath: this.blobPath}));
       }
     });
   }
 
   editBanner(bannerDetails: any): void {
     this.openDrawer.emit(true);
-    this._bannersService.bannerDetails$.next(bannerDetails);
+    this._store.dispatch(onEditBanner({bannerDetails}));
   }
 
   handleImageError(event: Event): void {

@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { getBannersList, getReferenceData, onEditBanner, removeBanner } from './banners.actions';
-import { bannersApiFindFail, bannersApiFindSuccess, referenceDataApiFindSuccess, removeBannerImageApiSuccess } from './banners-api.actions';
+import { bannersApiFindFail, bannersApiFindSuccess, referenceDataApiFindSuccess, removeBannerImageApiSuccess, saveBannerApiSuccess, uploadBannerImageApiSuccess } from './banners-api.actions';
 
 export interface BannersState {
   bannersList: {entities: any; searchAfter?: any; total: number};
@@ -75,5 +75,11 @@ export const bannersReducer = createReducer(
   }),
   on(removeBannerImageApiSuccess, (state, {response}) => {
     return {...state, removeBannerImageResponse: response}
+  }),
+  on(uploadBannerImageApiSuccess, (state, {response}) => {
+    return {...state, uploadBannerImageResponse: response}
+  }),
+  on(saveBannerApiSuccess, (state, {response}) => {
+    return {...state, saveBannerResponse: response}
   }),
 );

@@ -102,6 +102,15 @@ export class AddOrUpdateBannerComponent implements OnInit, OnDestroy {
           this.deleteNullProperties(payload);
           this._store.dispatch(saveBanner({payload: {...payload, fileId: imgRes.data.id}}));
         }
+      } else {
+        if(imgRes?.success){
+          this.bannerForm.patchValue({fileId: imgRes.data.id});
+          const payload = {...this.bannerForm.value};
+          this.deleteNullProperties(payload);
+          if(this.bannerForm.valid) {
+            this._store.dispatch(saveBanner({payload: {...payload, fileId: imgRes.data.id}}));
+          }
+        }
       }
     }));
 
@@ -162,9 +171,11 @@ export class AddOrUpdateBannerComponent implements OnInit, OnDestroy {
           this._store.dispatch(removeBannerImage({payload}));
       }
       // upload new image and then save banner details
-      if(this.editMode && this.selectedFile) {
+      if(this.selectedFile) {
         this._store.dispatch(uploadBannerImage({payload: this.selectedFile}));
-      } else {
+        return;
+      }
+      if(this.editMode && this.bannerForm.valid) {
         this._store.dispatch(saveBanner({payload}));
       }
     }

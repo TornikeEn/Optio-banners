@@ -11,7 +11,20 @@
         <div class="spacer"></div>
         <button *ngIf="!snav.opened" mat-raised-button (click)="snav.toggle();">Add New Banner</button>
       </mat-toolbar>
-        <app-banners-list (openDrawer)="snav.toggle()"></app-banners-list>
+        <app-banners-list
+         [blobPath]="blobPath"
+         [displayedColumns]="displayedColumns"
+         [pageSizeOptions]="pageSizeOptions"
+         [pageSize]="pageSize"
+         [pageIndex]="pageIndex"
+         [filterParams]="filterParams"
+         [bannersListSelector]="bannersListSelector$ | async"
+         [errorDetectedSelector]="errorDetectedSelector$ | async"
+         [selectLoading]="selectLoading$ | async"
+         (openDrawer)="snav.toggle(); onEditBanner($event)"
+         (deleteBanner)="deleteBanner($event)"
+         (filterBannerList)="filterBannerList($event)"
+         ></app-banners-list>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

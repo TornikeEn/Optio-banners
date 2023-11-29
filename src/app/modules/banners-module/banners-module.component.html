@@ -2,7 +2,22 @@
   <mat-sidenav-container class="sidenav-container">
     <mat-sidenav #snav mode="over" position="end" disableClose>
       <mat-nav-list>
-        <app-add-or-update-banner (collapse)="snav.toggle()"></app-add-or-update-banner>
+        <app-add-or-update-banner 
+         [blobPath]="blobPath"
+         [editMode]="editMode"
+         [selectChannels]="selectChannels$ | async"
+         [selectZones]="selectZones$ | async"
+         [selectLabels]="selectLabels$ | async"
+         [selectLanguages]="selectLanguages$ | async"
+         [loading]="selectLoading$ | async"
+         [bannerDetails]="selectBannerDetails$ | async"
+         [removeBannerImageResponse]="selectRemoveBannerImageResponse$ | async"
+         [selectSaveBannerResponse]="selectSaveBannerResponse$ | async"
+         [selectUploadBannerImageResponse]="selectUploadBannerImageResponse$ | async"
+         (fileIdChanged)="fileIdChangedHandler($event)"
+         (removeBannerImageEmit)="removeBannerImageHandler()"
+         (collapse)="snav.toggle(); refreshList()"
+         ></app-add-or-update-banner>
       </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content>

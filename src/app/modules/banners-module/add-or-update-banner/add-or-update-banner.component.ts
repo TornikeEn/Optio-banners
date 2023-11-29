@@ -1,16 +1,14 @@
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-
-import { environment } from 'src/environments/environment';
 
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 import { BannersState } from '../store/banners.reducer';
-import { selectBannerInfo, selectChannels, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectUploadBannerImageResponse, selectZones } from '../store/banners.selector';
-import { getBannersList, getReferenceData, removeBannerImage, saveBanner, uploadBannerImage } from '../store/banners.actions';
+import { selectUploadBannerImageResponse } from '../store/banners.selector';
+import { getBannersList, removeBannerImage, saveBanner, uploadBannerImage } from '../store/banners.actions';
 
 @Component({
   selector: 'app-add-or-update-banner',
@@ -18,17 +16,32 @@ import { getBannersList, getReferenceData, removeBannerImage, saveBanner, upload
   styleUrls: ['./add-or-update-banner.component.scss']
 })
 
-export class AddOrUpdateBannerComponent implements OnInit, OnDestroy {  
-  blobPath: string = `${environment.apiUrl}/blob/`;
+export class AddOrUpdateBannerComponent implements OnChanges, OnDestroy {  
+  @Input() blobPath!: string;
 
-  channelTypeId: string = '1600';
-  zoneTypeId: string = '1700';
-  labelTypeId: string = '1900';
-  languageTypeId: string = '2900';
+  @Input() editMode: boolean = false;
 
-  editMode: boolean = false;
+  @Input() selectChannels!: any[];
+  @Input() selectZones!: any[];
+  @Input() selectLabels!: any[];
+  @Input() selectLanguages!: any[];
 
-  subscriptions: Subscription[] = [];
+  @Input() loading: any;
+
+  @Input() bannerDetails: any;
+  @Input() removeBannerImageResponse: any;
+  @Input() selectSaveBannerResponse: any;
+  @Input() selectUploadBannerImageResponse: any;
+  
+  @Output() collapse: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+  @Output() bannerFormEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+  @Output() fileIdChanged: EventEmitter<any> = new EventEmitter<any>();
+  
+  @Output() removeBannerImageEmit: EventEmitter<any> = new EventEmitter<any>();
+
+  subscriptions: any[] = [];
 
   bannerForm: FormGroup = new FormGroup({
     id: new FormControl(null),
@@ -45,101 +58,81 @@ export class AddOrUpdateBannerComponent implements OnInit, OnDestroy {
     labels: new FormControl(null)
   });
 
-  bannerDetails: any;
   imageSrc: string = '';
   @ViewChild('fileInput') fileInput!: ElementRef;
   selectedFile: any;
   bannerImageAvailable: boolean = true;
   imgIsLoading: boolean = true;
 
-  @Output() collapse: EventEmitter<boolean> = new EventEmitter<boolean>();
+  constructor(private _dialog: MatDialog, private _store: Store<BannersState>) {
+    this.addSubscription(
+      this.bannerForm.get('fileId')?.valueChanges.subscribe((fileId) => {
+      this.fileIdChanged.emit(fileId);
+      })
+    )
+  }
 
-  selectBannerDetails$ = this._store.select(selectBannerInfo);
-  selectChannels$ = this._store.select(selectChannels);
-  selectZones$ = this._store.select(selectZones);
-  selectLabels$ = this._store.select(selectLabels);
-  selectLanguages$ = this._store.select(selectLanguages);
-  selectLoading$ = this._store.select(selectLoading);
-  selectRemoveBannerImageResponse$ = this._store.select(selectRemoveBannerImageResponse);
-  selectSaveBannerResponse$ = this._store.select(selectSaveBannerResponse);
-  selectUploadBannerImageResponse$ = this._store.select(selectUploadBannerImageResponse);
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['bannerDetails']) {
+      this.editMode = true;
+      this.imageSrc = this.bannerDetails?.imgSrc;
+      this.bannerImageAvailable = true;
+      this.bannerForm.patchValue({
+        ...this.bannerDetails,
+        startDate: new Date(this.bannerDetails?.startDate?.split('T')[0]),
+        endDate: new Date(this.bannerDetails?.endDate?.split('T')[0])
+      });
+    }
 
-  constructor(private _dialog: MatDialog, private _store: Store<BannersState>) {}
-
-  ngOnInit(): void {
-    this.getReferenceData();
-    this.addSubscription(this.selectBannerDetails$.subscribe(bannerDetails => {
-      if(bannerDetails) {
-        this.editMode = true;
-        this.bannerDetails = bannerDetails;
-        this.imageSrc = this.bannerDetails?.imgSrc;
-        this.bannerImageAvailable = true;
-        this.bannerForm.patchValue({
-          ...this.bannerDetails,
-          startDate: new Date(this.bannerDetails?.startDate?.split('T')[0]),
-          endDate: new Date(this.bannerDetails?.endDate?.split('T')[0])
-        });
-      }
-    }));
-
-    this.addSubscription(this.selectRemoveBannerImageResponse$.subscribe(res => {
+    if(changes['removeBannerImageResponse']) {
       if(this.editMode && this.selectedFile && this.bannerForm.value.fileId) {
         return;
-    } else {
-      if(res?.success === true) {
-        this.selectedFile = null;
-        this.imageSrc = '';
-        this.bannerForm.patchValue({fileId: null});
+      } else {
+        if(this.removeBannerImageResponse?.success === true) {
+          this.selectedFile = null;
+          this.imageSrc = '';
+          this.bannerForm.patchValue({fileId: null});
+        }
       }
     }
-    }));
 
-    this.addSubscription(this.selectUploadBannerImageResponse$.subscribe(imgRes => {
-      if(this.editMode && this.selectedFile) { 
-        if(imgRes?.success){
-          this.bannerForm.patchValue({fileId: imgRes.data.id});
-          const payload = {...this.bannerForm.value};
-          this.deleteNullProperties(payload);
-          this._store.dispatch(saveBanner({payload: {...payload, fileId: imgRes.data.id}}));
-        }
-      } else {
-        if(imgRes?.success){
-          this.bannerForm.patchValue({fileId: imgRes.data.id});
-          const payload = {...this.bannerForm.value};
-          this.deleteNullProperties(payload);
-          if(this.bannerForm.valid) {
-            this._store.dispatch(saveBanner({payload: {...payload, fileId: imgRes.data.id}}));
+    if(changes['selectSaveBannerResponse']) {
+      if(this.editMode && this.selectedFile) {
+        if(this.selectSaveBannerResponse?.success) {
+          this.resetBannerForm();
+          this.editMode = false;
+          this.collapse.emit(true);
+          this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
+          }
+        } else {
+          if(this.selectSaveBannerResponse?.success) {
+            this.resetBannerForm();
+            this.editMode = false;
+            this.collapse.emit(true);
+            this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
           }
         }
       }
-    }));
 
-    this.addSubscription(this.selectSaveBannerResponse$.subscribe(res => {
-      if(this.editMode && this.selectedFile) {
-        if(res?.success) {
-          this.resetBannerForm();
-          this.editMode = false;
-          this.collapse.emit(true);
-          this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
+    if(changes['selectUploadBannerImageResponse']) {
+      if(this.editMode && this.selectedFile) { 
+        if(this.selectUploadBannerImageResponse?.success){
+          this.bannerForm.patchValue({fileId: this.selectUploadBannerImageResponse.data.id});
+          const payload = {...this.bannerForm.value};
+          this.deleteNullProperties(payload);
+          this._store.dispatch(saveBanner({payload: {...payload, fileId: this.selectUploadBannerImageResponse.data.id}}));
         }
       } else {
-        if(res?.success) {
-          this.resetBannerForm();
-          this.editMode = false;
-          this.collapse.emit(true);
-          this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
+        if(this.selectUploadBannerImageResponse?.success){
+          this.bannerForm.patchValue({fileId: this.selectUploadBannerImageResponse.data.id});
+          const payload = {...this.bannerForm.value};
+          this.deleteNullProperties(payload);
+          if(this.bannerForm.valid) {
+            this._store.dispatch(saveBanner({payload: {...payload, fileId: this.selectUploadBannerImageResponse.data.id}}));
+          }
         }
       }
-    }));
-  }
-
-  getReferenceData(): void {
-    const payload = {
-      typeIds: [this.channelTypeId, this.zoneTypeId, this.labelTypeId, this.languageTypeId],
-      pageSize: 500
-    }
-    
-    this._store.dispatch(getReferenceData({payload}));
+      }
   }
 
   openFileInput(): void {
@@ -199,10 +192,7 @@ export class AddOrUpdateBannerComponent implements OnInit, OnDestroy {
 
   removeBannerImage(): void {
     if(this.editMode && this.bannerForm.value.fileId) {
-    const payload = {
-      blobIds: [this.bannerForm.value.fileId]
-      }
-      this._store.dispatch(removeBannerImage({payload}));
+      this.removeBannerImageEmit.emit();
       } else {
         this.selectedFile = null;
         this.imageSrc = '';
@@ -210,11 +200,7 @@ export class AddOrUpdateBannerComponent implements OnInit, OnDestroy {
   }
 
   collapseForm(): void {
-    if(this.editMode && this.bannerForm.value.fileId === null) {
-      this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
-    }
     this.resetBannerForm();
-    this.editMode = false;
   }
 
   resetBannerForm(): void {
@@ -261,7 +247,7 @@ export class AddOrUpdateBannerComponent implements OnInit, OnDestroy {
     }
   }
 
-  addSubscription(subscription: Subscription): void {
+  addSubscription(subscription: Subscription | undefined): void {
     this.subscriptions.push(subscription);
   }
 

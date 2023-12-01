@@ -28,6 +28,7 @@ export class BannersListComponent implements AfterViewInit, OnDestroy {
   @Input() filterParams!: Record<string,any>;
 
   @Input() bannersListSelector: any;
+  @Input() totalSelector: any;
   @Input() errorDetectedSelector: any;
   @Input() selectLoading: any;
 
@@ -62,7 +63,7 @@ export class BannersListComponent implements AfterViewInit, OnDestroy {
   }
 
   changePageHandler(event: PageEvent) {
-    this.filterBannerList.emit({...this.filterParams, pageIndex: this.pageIndex, pageSize: this.pageSize});
+    this.filterBannerList.emit({...this.filterParams, pageIndex: event.pageIndex, pageSize: event.pageSize});
   }
 
   removeBanner(id: string): void {

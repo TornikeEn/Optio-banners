@@ -38,7 +38,8 @@ export class BannersEffects {
       exhaustMap(({payload, blobPath}) => {
         return this._bannersApiService.removeBanner(payload).pipe(
           map((res) => {
-            return bannersApiActions.bannerRemoveSuccess({blobPath});
+            // return bannersApiActions.bannerRemoveSuccess({blobPath});
+            return bannersApiActions.bannerRemoveSuccess({id: payload.id!});
           }),
           catchError((res) => {
             return of(bannersApiActions.bannerRemoveFail());
@@ -48,22 +49,22 @@ export class BannersEffects {
     )
   );
 
-  removeAfterBanner$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(bannersApiActions.bannerRemoveSuccess),
-      exhaustMap(({blobPath}) => {
-        const savedFilterParams = this._sessionStorageService.get('bannersListFilterParams');
-        return this._bannersApiService.getBannersList(savedFilterParams).pipe(
-          map((res) => {
-            return bannersApiActions.bannersApiFindSuccess({ data: res.data, blobPath: blobPath});
-          }),
-          catchError((res) => {
-            return of(bannersApiActions.bannersApiFindFail());
-          })
-        )}
-      )
-    )
-  );
+  // removeAfterBanner$ = createEffect(() =>
+  //   this.actions$.pipe(
+  //     ofType(bannersApiActions.bannerRemoveSuccess),
+  //     exhaustMap(({blobPath}) => {
+  //       const savedFilterParams = this._sessionStorageService.get('bannersListFilterParams');
+  //       return this._bannersApiService.getBannersList(savedFilterParams).pipe(
+  //         map((res) => {
+  //           return bannersApiActions.bannersApiFindSuccess({ data: res.data, blobPath: blobPath});
+  //         }),
+  //         catchError((res) => {
+  //           return of(bannersApiActions.bannersApiFindFail());
+  //         })
+  //       )}
+  //     )
+  //   )
+  // );
 
   getReferenceData$ = createEffect(() =>
   this.actions$.pipe(
@@ -101,6 +102,7 @@ export class BannersEffects {
   this.actions$.pipe(
     ofType(bannersActions.saveBanner),
     exhaustMap(({payload}) => {
+      console.log(payload)
       return this._bannersApiService.saveBanner(payload).pipe(
         map((res) => {
           return bannersApiActions.saveBannerApiSuccess({ response: res });

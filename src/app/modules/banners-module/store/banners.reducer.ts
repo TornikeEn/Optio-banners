@@ -1,9 +1,29 @@
 import { createReducer, on } from '@ngrx/store';
 import { getBannersList, getReferenceData, onEditBanner, removeBanner } from './banners.actions';
-import { bannersApiFindFail, bannersApiFindSuccess, referenceDataApiFindSuccess, removeBannerImageApiSuccess, saveBannerApiSuccess, uploadBannerImageApiSuccess } from './banners-api.actions';
+import { bannerRemoveSuccess, bannersApiFindFail, bannersApiFindSuccess, referenceDataApiFindSuccess, removeBannerImageApiSuccess, saveBannerApiSuccess, uploadBannerImageApiSuccess } from './banners-api.actions';
+import { EntityAdapter, EntityState, createEntityAdapter } from '@ngrx/entity';
 
-export interface BannersState {
-  bannersList: {entities: any; searchAfter?: any; total: number};
+export interface BannerList {
+  bannersList: Banner[];
+}
+
+export interface Banner {
+  id: number,
+  name: string,
+  active: null | undefined,
+  startDate: string,
+  endDate: string | null,
+  labels: string[],
+  zoneId: string,
+  url: string,
+  fileId: string | null | undefined,
+  channelId: string,
+  language: string,
+  priority: string
+}
+
+export interface BannersState extends EntityState<BannerList> {
+  total: number;
   errorDetected: boolean;
   loading: boolean;
   bannerDetails: any;
@@ -20,8 +40,11 @@ export interface BannersState {
   uploadBannerImageResponse: any;
 }
 
-export const initialState: BannersState = {
-    bannersList: {entities: [], total: 0},
+export const adapter: EntityAdapter<BannerList> = createEntityAdapter();
+
+export const initialState: BannersState = adapter.getInitialState({
+    bannersList: [],
+    total: 0,
     errorDetected: false,
     loading: false,
     bannerDetails: null,
@@ -36,7 +59,8 @@ export const initialState: BannersState = {
     removeBannerImageResponse: null,
     saveBannerResponse: null,
     uploadBannerImageResponse: null,
-};
+});
+
 
 export const bannersReducer = createReducer(
   initialState,
@@ -52,13 +76,17 @@ export const bannersReducer = createReducer(
         imgSrc: `${blobPath}${element.fileId}?${Math.random()}`,
       };
     });
-    return { ...state, bannersList: newData, loading: false };
+    // return { ...state, bannersList: newData.entities, total: newData.total, loading: false };
+    return adapter.addMany(newData.entities, {...state, total: newData.total, loading: false});
   }),
   on(bannersApiFindFail, (state) => {
     return {...state, errorDetected: false, loading: false};
   }),
   on(removeBanner, (state) => {
     return {...state, loading: true}
+  }),
+  on(bannerRemoveSuccess, (state, {id}) => {
+    return adapter.removeOne(id, {...state, loading: false, total: state.total - 1})
   }),
   on(onEditBanner, (state, {bannerDetails}) => {
     return {...state, bannerDetails: {...bannerDetails}}
@@ -80,6 +108,6 @@ export const bannersReducer = createReducer(
     return {...state, uploadBannerImageResponse: response}
   }),
   on(saveBannerApiSuccess, (state, {response}) => {
-    return {...state, saveBannerResponse: response}
-  }),
+      return adapter.upsertOne(response.data, {...state, saveBannerResponse: response, total: state.total + 1})
+  })
 );

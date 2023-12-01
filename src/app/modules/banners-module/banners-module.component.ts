@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { environment } from 'src/environments/environment';
 import { BannersState } from './store/banners.reducer';
-import { selectBannerInfo, selectBannersList, selectChannels, selectErrorDetected, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectUploadBannerImageResponse, selectZones } from './store/banners.selector';
+import { selectBannerInfo, selectBannersList, selectChannels, selectErrorDetected, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectTotal, selectUploadBannerImageResponse, selectZones } from './store/banners.selector';
 import { SessionStorageService } from 'src/app/shared/services/sessionStorage.service';
 import { getBannersList, getReferenceData, onEditBanner, removeBanner, removeBannerImage } from './store/banners.actions';
 
@@ -23,6 +23,7 @@ export class BannersModuleComponent implements OnInit {
   filterParams!: Record<string,any>;
 
   bannersListSelector$ = this._store.select(selectBannersList);
+  totalSelector$ = this._store.select(selectTotal);
   errorDetectedSelector$ = this._store.select(selectErrorDetected);
   selectLoading$ = this._store.select(selectLoading);
 
@@ -82,7 +83,6 @@ export class BannersModuleComponent implements OnInit {
   }
 
   onEditBanner(bannerDetails: any) {
-    this.editMode = true;
     this._store.dispatch(onEditBanner({bannerDetails}));
   }
 
@@ -114,7 +114,7 @@ export class BannersModuleComponent implements OnInit {
 
   refreshList() {
     if(this.editMode && this.fileId === null) {
-      this.editMode = false;
+      this.editMode = true;
       this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
     }
   }

@@ -7,7 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 import { BannersState } from '../store/banners.reducer';
-import { selectUploadBannerImageResponse } from '../store/banners.selector';
 import { getBannersList, removeBannerImage, saveBanner, uploadBannerImage } from '../store/banners.actions';
 
 @Component({

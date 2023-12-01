@@ -34,6 +34,7 @@
          [pageIndex]="pageIndex"
          [filterParams]="filterParams"
          [bannersListSelector]="bannersListSelector$ | async"
+         [totalSelector]="totalSelector$ | async"
          [errorDetectedSelector]="errorDetectedSelector$ | async"
          [selectLoading]="selectLoading$ | async"
          (openDrawer)="snav.toggle(); onEditBanner($event)"

@@ -11,7 +11,7 @@ export const bannersApiFindFail = createAction(
 
 export const bannerRemoveSuccess = createAction(
     '[Banners Api] banner remove successed',
-    props<{blobPath: string}>()
+    props<{id: string}>()
   )
 
 export const bannerRemoveFail = createAction(

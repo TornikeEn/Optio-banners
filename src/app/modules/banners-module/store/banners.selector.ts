@@ -1,11 +1,18 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { BannersState } from './banners.reducer';
+import { BannersState, adapter } from './banners.reducer';
+
+const { selectAll: entitiesSelectAll } = adapter.getSelectors();
 
 export const selectBannersState = createFeatureSelector<BannersState>('banners');
 
 export const selectBannersList = createSelector(
     selectBannersState,
-    (state: BannersState) => state.bannersList
+    entitiesSelectAll
+)
+
+export const selectTotal = createSelector(
+    selectBannersState,
+    (state: BannersState) => state.total
 )
 
 export const selectErrorDetected = createSelector(

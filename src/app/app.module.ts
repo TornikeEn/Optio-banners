@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -25,11 +25,11 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
-    StoreModule.forRoot({ 
+    StoreModule.forRoot({
       banners: bannersReducer
      }),
     EffectsModule.forRoot(BannersEffects),
-    StoreDevtoolsModule.instrument({})
+    StoreDevtoolsModule.instrument({logOnly: !isDevMode()})
   ],
   providers: [
     {

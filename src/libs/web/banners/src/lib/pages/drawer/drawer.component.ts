@@ -82,7 +82,9 @@ import { ActivatedRoute, Router } from '@angular/router';
       this.pageIndex = event.pageIndex;
       this.pageSize = event.pageSize;
       this.filterParams = event;
-      this.getBannersList(this.filterParams);
+      this.router.navigate(['/'], {
+        queryParams: {...event}
+      })
     }
   
     onEditBanner(bannerDetails: any) {

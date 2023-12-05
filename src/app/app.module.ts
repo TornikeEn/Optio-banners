@@ -1,18 +1,14 @@
 import { NgModule, isDevMode } from '@angular/core';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { AppRoutingModule } from './app-routing.module';
-
-import { AppComponent } from './app.component';
-
-import { ApiInterceptor } from '../libs/web/core/api/interceptors/api-interceptor';
-import { JwtInterceptor } from '../libs/web/core/auth/interceptors/jwt-interceptor';
-
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { ApiInterceptor } from '../libs/web/core/api/interceptors/api-interceptor';
+import { JwtInterceptor } from '../libs/web/core/auth/interceptors/jwt-interceptor';
 
 @NgModule({
   declarations: [

@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/libs/web/shared/src/components/confirmation-dialog.component';
 
-import { BannersState } from 'src/libs/web/banners/src/lib/store/reducer/banners.reducer';
+import { BannersState } from '../../store/state';
 import { getBannersList, removeBannerImage, saveBanner, uploadBannerImage } from 'src/libs/web/banners/src/lib/store/actions/banners-list-page.actions';
 
 @Component({

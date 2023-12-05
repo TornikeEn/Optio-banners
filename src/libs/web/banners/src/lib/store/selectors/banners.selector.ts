@@ -1,5 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { BannersState, adapter } from '../reducer/banners.reducer';
+import { BannersState, adapter } from '../state';
 
 const { selectAll: entitiesSelectAll } = adapter.getSelectors();
 

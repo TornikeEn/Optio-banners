@@ -4,7 +4,6 @@ import { EMPTY, catchError, exhaustMap, map, mergeMap, of, switchMap, tap } from
 import * as bannersActions from '../actions/banners-list-page.actions';
 import * as bannersApiActions from '../actions/banners-api.actions';
 import { BannersApiService } from '../services/banners-api.service';
-import { SessionStorageService } from '../services/sessionStorage.service';
 
 @Injectable()
 export class BannersEffects {
@@ -13,14 +12,7 @@ export class BannersEffects {
     this.actions$.pipe(
       ofType(bannersActions.getBannersList),
       exhaustMap(({payload, blobPath}) => {
-        let payloadForApi = payload;
-        if(payload) {
-          this._sessionStorageService.set('bannersListFilterParams', payload);
-        } else {
-          const savedFilterParams = this._sessionStorageService.get('bannersListFilterParams');
-          payloadForApi = savedFilterParams;
-        }
-        return this._bannersApiService.getBannersList(payloadForApi).pipe(
+        return this._bannersApiService.getBannersList(payload).pipe(
           map((res) => {
             return bannersApiActions.bannersApiFindSuccess({ data: res.data, blobPath });
           }),
@@ -138,6 +130,5 @@ export class BannersEffects {
   constructor(
     private actions$: Actions,
     private _bannersApiService: BannersApiService,
-    private _sessionStorageService: SessionStorageService
   ) {}
 }

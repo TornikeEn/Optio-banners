@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { getBannersListPayload, referenceDataPayload, removeBannerImagePayload, removeBannerPayload, saveBannerPayload } from 'src/libs/web/banners/src/lib/store/types/banner-api-interfaces.models';
+import { getBannersListPayload, referenceDataPayload, removeBannerImagePayload, removeBannerPayload, saveBannerPayload } from 'src/libs/web/banners/src/lib/store/types/banners-api.interface';
 
 export const getBannersList = createAction(
   '[Banners List Component] get banners list',

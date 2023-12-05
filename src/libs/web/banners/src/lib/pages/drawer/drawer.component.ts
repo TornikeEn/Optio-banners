@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { environment } from 'src/environments/environment';
-import { BannersState } from 'src/libs/web/banners/src/lib/store/reducer/banners.reducer';
+import { BannersState } from '../../store/state';
 import { selectBannerInfo, selectBannersList, selectChannels, selectErrorDetected, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectTotal, selectUploadBannerImageResponse, selectZones } from 'src/libs/web/banners/src/lib/store/selectors/banners.selector';
-import { SessionStorageService } from '../../store/services/sessionStorage.service';
 import { getBannersList, getReferenceData, onEditBanner, removeBanner, removeBannerImage } from 'src/libs/web/banners/src/lib/store/actions/banners-list-page.actions';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-drawer',
@@ -48,7 +48,7 @@ import { getBannersList, getReferenceData, onEditBanner, removeBanner, removeBan
   
   
   
-    constructor(private _store: Store<BannersState>, private _sessionStorageService: SessionStorageService) {}
+    constructor(private _store: Store<BannersState>, private route: ActivatedRoute, private router: Router) {}
   
     ngOnInit(): void {
       this.getFilterParams();
@@ -56,19 +56,22 @@ import { getBannersList, getReferenceData, onEditBanner, removeBanner, removeBan
     }
   
     getFilterParams(): void {
-      const savedFilterParams = this._sessionStorageService.get('bannersListFilterParams');
-      if(savedFilterParams) {
+      this.route.queryParams.subscribe(queryParams => {
+        let savedFilterParams;
+        if(Object.keys(queryParams).length === 0) {
+          savedFilterParams = {
+            search: null,
+            sortBy: null,
+            sortDirection: null,
+            pageIndex: this.pageIndex,
+            pageSize: this.pageSize
+          };
+        } else {
+          savedFilterParams = queryParams;
+        }
         this.filterParams = savedFilterParams;
-      } else {
-        this.filterParams = {
-          search: null,
-          sortBy: null,
-          sortDirection: null,
-          pageIndex: this.pageIndex,
-          pageSize: this.pageSize
-        };
-      }
-      this.getBannersList(this.filterParams);
+        this.getBannersList(this.filterParams);
+      });
     }
   
     getBannersList(params: any) {
@@ -115,7 +118,7 @@ import { getBannersList, getReferenceData, onEditBanner, removeBanner, removeBan
     refreshList() {
       if(this.editMode && this.fileId === null) {
         this.editMode = true;
-        this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
+        this._store.dispatch(getBannersList({payload: this.filterParams, blobPath: this.blobPath}));
       }
     }
   

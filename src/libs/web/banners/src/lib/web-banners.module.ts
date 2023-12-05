@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
 
 import { BannersRoutingModule } from './banners.routing-module';
 
@@ -23,9 +25,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DrawerPageComponent } from './pages/drawer/drawer.component';
 import { BannerFormComponent } from './components/form/form.component';
 import { BannersListComponent } from './components/list/list.component';
-import { EffectsModule } from '@ngrx/effects';
+
 import { BannersEffects } from './store/effects/banners.effects';
-import { StoreModule } from '@ngrx/store';
 import { bannersReducer } from './store/reducer/banners.reducer';
 
 const components = [

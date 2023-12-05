@@ -1,23 +1,39 @@
-// import { EntityAdapter, EntityState, createEntityAdapter } from '@ngrx/entity';
-// import { BannerDto, ReferenceDataItemDto } from '@optio/dtos';
-// import { UploadResponse } from '@optio/web/core/store/types';
+import { EntityAdapter, EntityState, createEntityAdapter } from "@ngrx/entity";
+export interface BannerList {
+  bannersList: Banner[];
+}
 
-// export interface BannersState extends EntityState<BannerDto> {
-//   loading: boolean;
-//   total: number;
-//   optioHttpErrorResponse: any;
-//   selectedBannerId?: string;
-//   selectedBanner?: BannerDto;
+export interface Banner {
+  id: number;
+  name: string;
+  active: null | undefined;
+  startDate: string;
+  endDate: string | null;
+  labels: string[];
+  zoneId: string;
+  url: string;
+  fileId: string | null | undefined;
+  channelId: string;
+  language: string;
+  priority: string;
+}
 
-//   initialDataLoading: boolean;
+export interface BannersState extends EntityState<BannerList> {
+    total: number;
+    errorDetected: boolean;
+    loading: boolean;
+    bannerDetails: any;
+    channelTypeId: string;
+    zoneTypeId: string;
+    labelTypeId: string;
+    languageTypeId: string;
+    channels: any;
+    zones: any;
+    labels: any;
+    languages: any;
+    removeBannerImageResponse: any;
+    saveBannerResponse: any;
+    uploadBannerImageResponse: any;
+  }
 
-//   channelIds: ReferenceDataItemDto[];
-//   zoneIds: ReferenceDataItemDto[];
-//   languages: ReferenceDataItemDto[];
-//   bannerImageUploadResponse: UploadResponse;
-
-//   tableConfiguration: any;
-// }
-
-// export const adapter: EntityAdapter<BannerDto> =
-//   createEntityAdapter<BannerDto>();
+export const adapter: EntityAdapter<BannerList> = createEntityAdapter();

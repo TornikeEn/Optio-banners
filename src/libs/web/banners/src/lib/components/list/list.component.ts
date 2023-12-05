@@ -7,9 +7,10 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 
-import { BannersState } from 'src/libs/web/banners/src/lib/store/reducer/banners.reducer';
-
 import { ConfirmationDialogComponent } from 'src/libs/web/shared/src/components/confirmation-dialog.component';
+
+import { BannersState } from '../../store/state';
+
 
 @Component({
   selector: 'app-banners-list',

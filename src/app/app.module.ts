@@ -7,12 +7,10 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 
-import { ApiInterceptor } from './shared/interceptors/api-interceptor';
-import { JwtInterceptor } from './shared/interceptors/jwt-interceptor';
+import { ApiInterceptor } from '../libs/web/core/api/interceptors/api-interceptor';
+import { JwtInterceptor } from '../libs/web/core/auth/interceptors/jwt-interceptor';
 
 import { StoreModule } from '@ngrx/store';
-import { bannersReducer } from './modules/banners-module/store/banners.reducer';
-import { BannersEffects } from './modules/banners-module/store/banners.effects';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
@@ -25,10 +23,8 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
-    StoreModule.forRoot({
-      banners: bannersReducer
-     }),
-    EffectsModule.forRoot(BannersEffects),
+    StoreModule.forRoot(),
+    EffectsModule.forRoot([]),
     StoreDevtoolsModule.instrument({logOnly: !isDevMode()})
   ],
   providers: [

@@ -5,7 +5,10 @@ const routes: Routes = [
   { path: '', redirectTo: 'banners', pathMatch: 'full' },
   {
     path: 'banners',
-    loadChildren: () =>import('./modules/banners-module/banners.module').then((m) => m.BannersModule),
+    loadChildren: () =>import('../libs/web/banners/src/index').then((m) => m.WebBannersModule),
+  },
+  {
+    path: '**', redirectTo: 'banners', pathMatch: 'full'
   }
 ];
 

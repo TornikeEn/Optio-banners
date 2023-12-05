@@ -1,0 +1,44 @@
+<div class="wrapper">
+    <mat-sidenav-container class="sidenav-container">
+      <mat-sidenav #snav mode="over" position="end" disableClose>
+        <app-banner-form 
+          [blobPath]="blobPath"
+          [editMode]="editMode"
+          [selectChannels]="selectChannels$ | async"
+          [selectZones]="selectZones$ | async"
+          [selectLabels]="selectLabels$ | async"
+          [selectLanguages]="selectLanguages$ | async"
+          [loading]="selectLoading$ | async"
+          [bannerDetails]="selectBannerDetails$ | async"
+          [removeBannerImageResponse]="selectRemoveBannerImageResponse$ | async"
+          [selectSaveBannerResponse]="selectSaveBannerResponse$ | async"
+          [selectUploadBannerImageResponse]="selectUploadBannerImageResponse$ | async"
+          (fileIdChanged)="fileIdChangedHandler($event)"
+          (removeBannerImageEmit)="removeBannerImageHandler()"
+          (collapse)="snav.toggle(); refreshList()"
+        ></app-banner-form>
+      </mat-sidenav>
+      <mat-sidenav-content>
+        <mat-toolbar color="primary">
+          <h1>Banners List</h1>
+          <div class="spacer"></div>
+          <button *ngIf="!snav.opened" mat-raised-button (click)="snav.toggle();">Add New Banner</button>
+        </mat-toolbar>
+          <app-banners-list
+            [blobPath]="blobPath"
+            [displayedColumns]="displayedColumns"
+            [pageSizeOptions]="pageSizeOptions"
+            [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
+            [filterParams]="filterParams"
+            [bannersListSelector]="bannersListSelector$ | async"
+            [totalSelector]="totalSelector$ | async"
+            [errorDetectedSelector]="errorDetectedSelector$ | async"
+            [selectLoading]="selectLoading$ | async"
+            (openDrawer)="snav.toggle(); onEditBanner($event)"
+            (deleteBanner)="deleteBanner($event)"
+            (filterBannerList)="filterBannerList($event)"
+          ></app-banners-list>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>

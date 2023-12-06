@@ -1,4 +1,4 @@
-export interface getBannersListPayload {
+export interface BannersFindDto {
   includes?: string[];
   excludes?: string[];
   search?: string;
@@ -13,7 +13,7 @@ export interface getBannersListPayload {
   searchAfter?: string[];
 }
 
-export interface saveBannerPayload {
+export interface BannersSaveDto {
   id?: string;
   name?: string;
   isCorporate?: boolean;
@@ -29,33 +29,10 @@ export interface saveBannerPayload {
   labels?: string[];
 }
 
-export interface removeBannerPayload {
+export interface BannerRemoveDto {
   id?: string;
 }
 
-export interface referenceDataPayload {
-  typeId?: string;
-  subTypeId?: string;
-  parentId?: string;
-  path?: string;
-  typeIds?: string[];
-  excludeKeys?: string[];
-  keys?: string[];
-  autocomplete?: true;
-  includes?: string[];
-  excludes?: string[];
-  search?: string;
-  ids?: string[];
-  excludeIds?: string[];
-  targetAudienceIds?: string[];
-  query?: {};
-  sortBy?: string;
-  sortDirection?: string;
-  pageIndex?: number;
-  pageSize?: number;
-  searchAfter?: string[];
-}
-
-export interface removeBannerImagePayload {
+export interface blobRemoveDto {
   blobIds?: string[];
 }

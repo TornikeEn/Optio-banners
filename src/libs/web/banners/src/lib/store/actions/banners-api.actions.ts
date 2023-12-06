@@ -1,39 +1,39 @@
 import { createAction, props } from '@ngrx/store';
 
 export const bannersApiFindSuccess = createAction(
-    '[Banners Api] find banners list successed',
+    '[Banners Api] find successed',
     props<{data: any, blobPath: string}>()
   );
 
 export const bannersApiFindFail = createAction(
-    '[Banners Api] find banners list failed'
+    '[Banners Api] find failed'
   )
 
-export const bannerRemoveSuccess = createAction(
-    '[Banners Api] banner remove successed',
+export const bannerApiRemoveSuccess = createAction(
+    '[Banners Api] remove successed',
     props<{id: string}>()
   )
 
-export const bannerRemoveFail = createAction(
-    '[Banners Api] banner remove failed'
-  )
-
-export const referenceDataApiFindSuccess = createAction(
-    '[Banners Api] reference data find successed',
-      props<{refData: any}>()
-  )
-
-export const removeBannerImageApiSuccess = createAction(
-    '[Banners Api] remove banner image successed',
-      props<{response: any}>()
+export const bannerApiRemoveFail = createAction(
+    '[Banners Api] remove failed'
   )
 
 export const saveBannerApiSuccess = createAction(
-    '[Banners Api] save banner successed',
+    '[Banners Api] save successed',
       props<{response: any}>()
   )
 
-export const uploadBannerImageApiSuccess = createAction(
-    '[Banners Api] upload banner image successed',
+export const referenceDataApiFindSuccess = createAction(
+    '[Reference Data Api] find successed',
+      props<{refData: any}>()
+  )
+
+export const removeBlobApiSuccess = createAction(
+    '[Blob Api] remove successed',
+      props<{response: any}>()
+  )
+
+export const uploadBlobApiSuccess = createAction(
+    '[Blob Api] upload successed',
       props<{response: any}>()
   )

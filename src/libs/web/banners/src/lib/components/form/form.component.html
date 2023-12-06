@@ -32,7 +32,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Channel</mat-label>
                 <mat-select formControlName="channelId">
-                    <mat-option *ngFor="let channel of selectChannels" [value]="channel.key">
+                    <mat-option *ngFor="let channel of channels" [value]="channel.key">
                     {{channel.name}}
                     </mat-option>
                 </mat-select>
@@ -42,7 +42,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Language</mat-label>
                 <mat-select formControlName="language">
-                    <mat-option *ngFor="let language of selectLanguages" [value]="language.key">
+                    <mat-option *ngFor="let language of languages" [value]="language.key">
                     {{language.name}}
                     </mat-option>
                 </mat-select>
@@ -50,7 +50,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Zone</mat-label>
                 <mat-select formControlName="zoneId">
-                    <mat-option *ngFor="let zone of selectZones" [value]="zone.key">
+                    <mat-option *ngFor="let zone of zones" [value]="zone.key">
                     {{zone.name}}
                     </mat-option>
                 </mat-select>
@@ -91,7 +91,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Labels</mat-label>
                 <mat-select formControlName="labels" multiple="true">
-                    <mat-option *ngFor="let label of selectLabels" [value]="label.key">
+                    <mat-option *ngFor="let label of labels" [value]="label.key">
                     {{label.name}}
                     </mat-option>
                 </mat-select>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
@@ -7,7 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/libs/web/shared/src/components/confirmation-dialog.component';
 
 import { BannersState } from '../../store/state';
-import { getBannersList, removeBannerImage, saveBanner, uploadBannerImage } from 'src/libs/web/banners/src/lib/store/actions/banners-list-page.actions';
 
 @Component({
   selector: 'app-banner-form',
@@ -16,29 +15,30 @@ import { getBannersList, removeBannerImage, saveBanner, uploadBannerImage } from
 })
 
 export class BannerFormComponent implements OnChanges, OnDestroy {  
-  @Input() blobPath!: string;
+  @Input() blobPath: string = '';
 
   @Input() editMode: boolean = false;
 
-  @Input() selectChannels!: any[];
-  @Input() selectZones!: any[];
-  @Input() selectLabels!: any[];
-  @Input() selectLanguages!: any[];
+  @Input() channels!: any[];
+  @Input() zones!: any[];
+  @Input() labels!: any[];
+  @Input() languages!: any[];
 
   @Input() loading: any;
 
   @Input() bannerDetails: any;
   @Input() removeBannerImageResponse: any;
-  @Input() selectSaveBannerResponse: any;
-  @Input() selectUploadBannerImageResponse: any;
+  @Input() saveBannerResponse: any;
+  @Input() uploadBannerImageResponse: any;
   
   @Output() collapse: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  @Output() bannerFormEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
-
   @Output() fileIdChanged: EventEmitter<any> = new EventEmitter<any>();
   
-  @Output() removeBannerImageEmit: EventEmitter<any> = new EventEmitter<any>();
+  @Output() removeImageClick: EventEmitter<any> = new EventEmitter<any>();
+  @Output() oldImageRemove: EventEmitter<any> = new EventEmitter<any>();
+  @Output() newImageUpload: EventEmitter<any> = new EventEmitter<any>();
+  @Output() saveBannerRequest: EventEmitter<any> = new EventEmitter<any>();
 
   subscriptions: any[] = [];
 
@@ -95,39 +95,37 @@ export class BannerFormComponent implements OnChanges, OnDestroy {
       }
     }
 
-    if(changes['selectSaveBannerResponse']) {
+    if(changes['saveBannerResponse']) {
       if(this.editMode && this.selectedFile) {
-        if(this.selectSaveBannerResponse?.success) {
-          this.resetBannerForm();
+        if(this.saveBannerResponse?.success) {
+          this.resetForm();
           this.editMode = false;
           this.collapse.emit(true);
-          this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
           }
         } else {
-          if(this.selectSaveBannerResponse?.success) {
-            this.resetBannerForm();
+          if(this.saveBannerResponse?.success) {
+            this.resetForm();
             this.editMode = false;
             this.collapse.emit(true);
-            this._store.dispatch(getBannersList({payload: undefined, blobPath: this.blobPath}));
           }
         }
       }
 
-    if(changes['selectUploadBannerImageResponse']) {
+    if(changes['uploadBannerImageResponse']) {
       if(this.editMode && this.selectedFile) { 
-        if(this.selectUploadBannerImageResponse?.success){
-          this.bannerForm.patchValue({fileId: this.selectUploadBannerImageResponse.data.id});
+        if(this.uploadBannerImageResponse?.success){
+          this.bannerForm.patchValue({fileId: this.uploadBannerImageResponse.data.id});
           const payload = {...this.bannerForm.value};
           this.deleteNullProperties(payload);
-          this._store.dispatch(saveBanner({payload: {...payload, fileId: this.selectUploadBannerImageResponse.data.id}}));
+          this.saveBannerRequest.emit({...payload, fileId: this.uploadBannerImageResponse.data.id});
         }
       } else {
-        if(this.selectUploadBannerImageResponse?.success){
-          this.bannerForm.patchValue({fileId: this.selectUploadBannerImageResponse.data.id});
+        if(this.uploadBannerImageResponse?.success){
+          this.bannerForm.patchValue({fileId: this.uploadBannerImageResponse.data.id});
           const payload = {...this.bannerForm.value};
           this.deleteNullProperties(payload);
           if(this.bannerForm.valid) {
-            this._store.dispatch(saveBanner({payload: {...payload, fileId: this.selectUploadBannerImageResponse.data.id}}));
+            this.saveBannerRequest.emit({...payload, fileId: this.uploadBannerImageResponse.data.id});
           }
         }
       }
@@ -160,15 +158,15 @@ export class BannerFormComponent implements OnChanges, OnDestroy {
      
       //delete old image  
       if(this.editMode && this.selectedFile && this.bannerForm.value.fileId) {
-          this._store.dispatch(removeBannerImage({payload}));
+          this.oldImageRemove.emit(payload);
       }
       // upload new image and then save banner details
       if(this.selectedFile) {
-        this._store.dispatch(uploadBannerImage({payload: this.selectedFile}));
+          this.newImageUpload.emit(this.selectedFile);
         return;
       }
       if(this.editMode && this.bannerForm.valid) {
-        this._store.dispatch(saveBanner({payload}));
+        this.saveBannerRequest.emit(payload)
       }
     }
   }
@@ -184,14 +182,14 @@ export class BannerFormComponent implements OnChanges, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result) {
-         this.removeBannerImage();
+         this.removeClickEventHandler();
       }
     });
   }
 
-  removeBannerImage(): void {
+  removeClickEventHandler(): void {
     if(this.editMode && this.bannerForm.value.fileId) {
-      this.removeBannerImageEmit.emit();
+      this.removeImageClick.emit();
       } else {
         this.selectedFile = null;
         this.imageSrc = '';
@@ -199,10 +197,10 @@ export class BannerFormComponent implements OnChanges, OnDestroy {
   }
 
   collapseForm(): void {
-    this.resetBannerForm();
+    this.resetForm();
   }
 
-  resetBannerForm(): void {
+  resetForm(): void {
     this.bannerForm.markAsPristine();
     this.bannerForm.reset();
     this.selectedFile = null;

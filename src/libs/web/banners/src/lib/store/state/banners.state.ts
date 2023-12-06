@@ -22,6 +22,7 @@ export interface BannersState extends EntityState<BannerList> {
     total: number;
     errorDetected: boolean;
     loading: boolean;
+    formLoading: boolean;
     bannerDetails: any;
     channelTypeId: string;
     zoneTypeId: string;

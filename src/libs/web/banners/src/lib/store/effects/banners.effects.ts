@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, catchError, exhaustMap, map, mergeMap, of, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import * as bannersActions from '../actions/banners-list-page.actions';
 import * as bannersApiActions from '../actions/banners-api.actions';
 import { BannersApiService } from '../services/banners-api.service';
+import { ReferenceDataApiService } from '../services/reference-data-api.service';
 
 @Injectable()
 export class BannersEffects {
   
-  loadBannersList$ = createEffect(() =>
+  findBanners$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(bannersActions.getBannersList),
-      exhaustMap(({payload, blobPath}) => {
-        return this._bannersApiService.getBannersList(payload).pipe(
+      ofType(bannersActions.queryParamsChanged),
+      switchMap(({payload, blobPath}) => {
+        return this._bannersApiService.find(payload).pipe(
           map((res) => {
             return bannersApiActions.bannersApiFindSuccess({ data: res.data, blobPath });
           }),
@@ -26,80 +27,28 @@ export class BannersEffects {
 
   removeBanner$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(bannersActions.removeBanner),
-      exhaustMap(({payload, blobPath}) => {
-        return this._bannersApiService.removeBanner(payload).pipe(
+      ofType(bannersActions.removeBannerRequest),
+      mergeMap(({payload}) => {
+        return this._bannersApiService.remove(payload).pipe(
           map((res) => {
-            // return bannersApiActions.bannerRemoveSuccess({blobPath});
-            return bannersApiActions.bannerRemoveSuccess({id: payload.id!});
+            return bannersApiActions.bannerApiRemoveSuccess({id: payload.id!});
           }),
           catchError((res) => {
-            return of(bannersApiActions.bannerRemoveFail());
+            return of(bannersApiActions.bannerApiRemoveFail());
           })
         )}
       )
       ,tap((a) => {
-
         console.log(a)
       })
     )
   );
 
-  // removeAfterBanner$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(bannersApiActions.bannerRemoveSuccess),
-  //     exhaustMap(({blobPath}) => {
-  //       const savedFilterParams = this._sessionStorageService.get('bannersListFilterParams');
-  //       return this._bannersApiService.getBannersList(savedFilterParams).pipe(
-  //         map((res) => {
-  //           return bannersApiActions.bannersApiFindSuccess({ data: res.data, blobPath: blobPath});
-  //         }),
-  //         catchError((res) => {
-  //           return of(bannersApiActions.bannersApiFindFail());
-  //         })
-  //       )}
-  //     )
-  //   )
-  // );
-
-  getReferenceData$ = createEffect(() =>
+  saveBanner$ = createEffect(() =>
   this.actions$.pipe(
-    ofType(bannersActions.getReferenceData),
-    exhaustMap(({payload}) => {
-      return this._bannersApiService.getReferenceData(payload).pipe(
-        map((res) => {
-          return bannersApiActions.referenceDataApiFindSuccess({ refData: res.data });
-        }),
-        catchError((res) => {
-          return EMPTY;
-        })
-      )}
-    )
-  )
-);
-
- removeBannerImage$ = createEffect(() =>
-  this.actions$.pipe(
-    ofType(bannersActions.removeBannerImage),
-    exhaustMap(({payload}) => {
-      return this._bannersApiService.removeBannerImage(payload).pipe(
-        map((res) => {
-          return bannersApiActions.removeBannerImageApiSuccess({ response: res });
-        }),
-        catchError((res) => {
-          return EMPTY;
-        })
-      )}
-    )
-  )
-);
-
- saveBanner$ = createEffect(() =>
-  this.actions$.pipe(
-    ofType(bannersActions.saveBanner),
-    exhaustMap(({payload}) => {
-      console.log(payload)
-      return this._bannersApiService.saveBanner(payload).pipe(
+    ofType(bannersActions.saveBannerRequest),
+    mergeMap(({payload}) => {
+      return this._bannersApiService.save(payload).pipe(
         map((res) => {
           return bannersApiActions.saveBannerApiSuccess({ response: res });
         }),
@@ -111,13 +60,45 @@ export class BannersEffects {
   )
 );
 
- uploadBannerImage$ = createEffect(() =>
+  referenceDataFind$ = createEffect(() =>
   this.actions$.pipe(
-    ofType(bannersActions.uploadBannerImage),
-    exhaustMap(({payload}) => {
-      return this._bannersApiService.uploadBannerImage(payload).pipe(
+    ofType(bannersActions.referenceDataFindRequest),
+    switchMap(({payload}) => {
+      return this._referenceDataApiService.find(payload).pipe(
         map((res) => {
-          return bannersApiActions.uploadBannerImageApiSuccess({ response: res });
+          return bannersApiActions.referenceDataApiFindSuccess({ refData: res.data });
+        }),
+        catchError((res) => {
+          return EMPTY;
+        })
+      )}
+    )
+  )
+);
+
+ removeBlob$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(bannersActions.removeBannerImageRequest),
+    mergeMap(({payload}) => {
+      return this._referenceDataApiService.remove(payload).pipe(
+        map((res) => {
+          return bannersApiActions.removeBlobApiSuccess({ response: res });
+        }),
+        catchError((res) => {
+          return EMPTY;
+        })
+      )}
+    )
+  )
+);
+
+ uploadBlob$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(bannersActions.uploadBannerImageRequest),
+    switchMap(({payload}) => {
+      return this._referenceDataApiService.upload(payload).pipe(
+        map((res) => {
+          return bannersApiActions.uploadBlobApiSuccess({ response: res });
         }),
         catchError((res) => {
           return EMPTY;
@@ -130,5 +111,6 @@ export class BannersEffects {
   constructor(
     private actions$: Actions,
     private _bannersApiService: BannersApiService,
+    private _referenceDataApiService: ReferenceDataApiService,
   ) {}
 }

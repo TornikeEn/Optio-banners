@@ -25,6 +25,11 @@ export const selectLoading = createSelector(
     (state: BannersState) => state.loading
 )
 
+export const selectFormLoading = createSelector(
+    selectBannersState,
+    (state: BannersState) => state.formLoading
+)
+
 export const selectBannerInfo = createSelector(
     selectBannersState,
     (state: BannersState) => state.bannerDetails

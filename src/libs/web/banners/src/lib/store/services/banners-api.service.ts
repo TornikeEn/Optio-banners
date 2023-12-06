@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { getBannersListPayload, referenceDataPayload, removeBannerImagePayload, removeBannerPayload, saveBannerPayload } from '../types';
+import { BannersFindDto, referenceDataFindDto, blobRemoveDto, BannerRemoveDto, BannersSaveDto } from '../types';
 
 @Injectable({
   providedIn: 'root',
@@ -11,29 +11,16 @@ import { getBannersListPayload, referenceDataPayload, removeBannerImagePayload, 
 export class BannersApiService {
   constructor(private _http: HttpClient) {}
 
-  getBannersList(payload: getBannersListPayload | undefined): Observable<any> {
+  find(payload: BannersFindDto | undefined): Observable<any> {
     return this._http.post('banners/find', payload);
   }
   
-  saveBanner(payload: saveBannerPayload): Observable<any> {
+  save(payload: BannersSaveDto): Observable<any> {
     return this._http.post('banners/save', payload);
   }
 
-  removeBanner(payload: removeBannerPayload): Observable<any> {
+  remove(payload: BannerRemoveDto): Observable<any> {
     return this._http.post('banners/remove', payload);
   }
-  
-  getReferenceData(payload: referenceDataPayload): Observable<any> {
-    return this._http.post('reference-data/find', payload);
-  }
 
-  uploadBannerImage(payload: Blob): Observable<any> {
-    const formData = new FormData();
-    formData.set('blob', payload);
-    return this._http.post('blob/upload', formData);
-  }
-
-  removeBannerImage(payload: removeBannerImagePayload): Observable<any> {
-    return this._http.post('blob/remove', payload);
-  }
 }

@@ -1,37 +1,37 @@
 import { createAction, props } from '@ngrx/store';
-import { getBannersListPayload, referenceDataPayload, removeBannerImagePayload, removeBannerPayload, saveBannerPayload } from 'src/libs/web/banners/src/lib/store/types/banners-api.interface';
+import { BannersFindDto, referenceDataFindDto, blobRemoveDto, BannerRemoveDto, BannersSaveDto } from 'src/libs/web/banners/src/lib/store/types';
 
-export const getBannersList = createAction(
-  '[Banners List Component] get banners list',
-  props<{payload: getBannersListPayload | undefined, blobPath: string}>()
+export const queryParamsChanged = createAction(
+  '[Drawer Component] query parameters changed',
+  props<{payload: BannersFindDto, blobPath: string}>()
 );
 
-export const removeBanner = createAction(
-  '[Banners List Component] remove banner',
-  props<{payload: removeBannerPayload, blobPath: string}>()
+export const removeBannerRequest = createAction(
+  '[Drawer Component] remove banner requested',
+  props<{payload: BannerRemoveDto}>()
 );
 
-export const onEditBanner = createAction(
-  '[Banners List Component] edit banner',
+export const editBannerRequest = createAction(
+  '[Drawer Component] edit banner requested',
   props<{bannerDetails: any}>()
 );
 
-export const getReferenceData = createAction(
-  '[Add Or Update Banner Component] get reference data',
-  props<{payload: referenceDataPayload}>()
+export const referenceDataFindRequest = createAction(
+  '[Drawer Component] reference data find requested',
+  props<{payload: referenceDataFindDto}>()
 );
 
-export const removeBannerImage = createAction(
-  '[Add Or Update Banner Component] remove banner image',
-  props<{payload: removeBannerImagePayload}>()
+export const removeBannerImageRequest = createAction(
+  '[Drawer Component] remove banner image requested',
+  props<{payload: blobRemoveDto}>()
 );
 
-export const saveBanner = createAction(
-  '[Add Or Update Banner Component] save banner',
-  props<{payload: saveBannerPayload}>()
+export const saveBannerRequest = createAction(
+  '[Drawer Component] save banner requested',
+  props<{payload: BannersSaveDto}>()
 );
 
-export const uploadBannerImage = createAction(
-  '[Add Or Update Banner Component] upload banner image',
+export const uploadBannerImageRequest = createAction(
+  '[Drawer Component] upload banner image requested',
   props<{payload: Blob}>()
 );

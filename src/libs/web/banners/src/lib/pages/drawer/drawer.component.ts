@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { environment } from 'src/environments/environment';
-import { BannersState } from '../../store/state';
-import { selectBannerInfo, selectBannersList, selectChannels, selectErrorDetected, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectTotal, selectUploadBannerImageResponse, selectZones } from 'src/libs/web/banners/src/lib/store/selectors/banners.selector';
-import { getBannersList, getReferenceData, onEditBanner, removeBanner, removeBannerImage } from 'src/libs/web/banners/src/lib/store/actions/banners-list-page.actions';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+
+import { environment } from 'src/environments/environment';
+
+import { BannersState } from '../../store/state';
+import { selectBannerInfo, selectBannersList, selectChannels, selectErrorDetected, selectFormLoading, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectTotal, selectUploadBannerImageResponse, selectZones } from 'src/libs/web/banners/src/lib/store/selectors/banners.selector';
+import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, removeBannerRequest, removeBannerImageRequest, uploadBannerImageRequest, saveBannerRequest } from 'src/libs/web/banners/src/lib/store/actions/banners-list-page.actions';
 
 @Component({
     selector: 'app-drawer',
@@ -26,6 +28,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     totalSelector$ = this._store.select(selectTotal);
     errorDetectedSelector$ = this._store.select(selectErrorDetected);
     selectLoading$ = this._store.select(selectLoading);
+    selectFormLoading$ = this._store.select(selectFormLoading);
   
     channelTypeId: string = '1600';
     zoneTypeId: string = '1700';
@@ -54,7 +57,7 @@ import { ActivatedRoute, Router } from '@angular/router';
       this.getFilterParams();
       this.getReferenceData();
     }
-  
+
     getFilterParams(): void {
       this.route.queryParams.subscribe(queryParams => {
         let savedFilterParams;
@@ -75,10 +78,10 @@ import { ActivatedRoute, Router } from '@angular/router';
     }
   
     getBannersList(params: any) {
-      this._store.dispatch(getBannersList({payload: params, blobPath: this.blobPath}));
+      this._store.dispatch(queryParamsChanged({payload: params, blobPath: this.blobPath}));
     }
   
-    filterBannerList(event: any) {
+    onfilterParamsChange(event: any) {
       this.pageIndex = event.pageIndex;
       this.pageSize = event.pageSize;
       this.filterParams = event;
@@ -87,12 +90,12 @@ import { ActivatedRoute, Router } from '@angular/router';
       })
     }
   
-    onEditBanner(bannerDetails: any) {
-      this._store.dispatch(onEditBanner({bannerDetails}));
+    onOpenDrawer(bannerDetails: any) {
+      this._store.dispatch(editBannerRequest({bannerDetails}));
     }
   
-    deleteBanner(id: string) {
-      this._store.dispatch(removeBanner({payload: {id}, blobPath: this.blobPath}));
+    onDeleteClicked(id: string) {
+      this._store.dispatch(removeBannerRequest({payload: {id}}));
     }
   
     getReferenceData(): void {
@@ -101,26 +104,39 @@ import { ActivatedRoute, Router } from '@angular/router';
         pageSize: 500
       }
       
-      this._store.dispatch(getReferenceData({payload}));
+      this._store.dispatch(referenceDataFindRequest({payload}));
     }
   
     fileIdChangedHandler(fileId: any) {
       this.fileId = fileId;
     }
   
-    removeBannerImageHandler(): void {
+    onRemoveImageClick(): void {
       if(this.editMode && this.fileId) {
       const payload = {
         blobIds: [this.fileId]
         }
-        this._store.dispatch(removeBannerImage({payload}));
+        this._store.dispatch(removeBannerImageRequest({payload}));
         }
     }
+    
+    onOldImageRemove(payload: any) {
+      this._store.dispatch(removeBannerImageRequest({payload: {blobIds: [payload.fileId]}}));
+    }
+
+    onNewImageUpload(selectedFile: any) {
+      this._store.dispatch(uploadBannerImageRequest({payload: selectedFile}));
+      
+    }
+
+    onSaveBannerRequest(payload: any) {
+          this._store.dispatch(saveBannerRequest({payload}));
+    }
   
-    refreshList() {
+    onCollapse() {
       if(this.editMode && this.fileId === null) {
         this.editMode = true;
-        this._store.dispatch(getBannersList({payload: this.filterParams, blobPath: this.blobPath}));
+        this._store.dispatch(queryParamsChanged({payload: this.filterParams, blobPath: this.blobPath}));
       }
     }
   

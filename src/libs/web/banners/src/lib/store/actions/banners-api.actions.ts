@@ -4,11 +4,16 @@ export const bannersApiFindSuccess = createAction(
     '[Banners Api] find successed',
     props<{data: any, blobPath: string}>()
   );
-
+  
 export const bannersApiFindFail = createAction(
-    '[Banners Api] find failed'
+  '[Banners Api] find failed'
   )
-
+    
+export const bannersApiFindOneSuccess = createAction(
+  '[Banners Api] find one successed',
+  props<{bannerDetails: any}>()
+);
+    
 export const bannerApiRemoveSuccess = createAction(
     '[Banners Api] remove successed',
     props<{id: string}>()

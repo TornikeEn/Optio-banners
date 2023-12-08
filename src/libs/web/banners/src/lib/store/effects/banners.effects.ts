@@ -25,6 +25,22 @@ export class BannersEffects {
     )
   );
 
+  findBanner$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(bannersActions.editBannerRequest),
+      switchMap(({bannerId}) => {
+        return this._bannersApiService.findOne({id: bannerId}).pipe(
+          map((res) => {
+            return bannersApiActions.bannersApiFindOneSuccess({ bannerDetails: res.data });
+          }),
+          catchError((res) => {
+            return of(bannersApiActions.bannersApiFindFail());
+          })
+        )}
+      )
+    )
+  );
+
   removeBanner$ = createEffect(() =>
     this.actions$.pipe(
       ofType(bannersActions.removeBannerRequest),

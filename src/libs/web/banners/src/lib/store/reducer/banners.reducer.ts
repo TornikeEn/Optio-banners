@@ -1,7 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import { BannersState, adapter } from '../state';
-import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, removeBannerRequest, saveBannerRequest } from '../actions/banners-list-page.actions';
-import { bannerApiRemoveSuccess, bannersApiFindFail, bannersApiFindSuccess, referenceDataApiFindSuccess, removeBlobApiSuccess, saveBannerApiSuccess, uploadBlobApiSuccess } from '../actions/banners-api.actions';
+import { editBannerRequest, queryParamsChanged, referenceDataFindRequest, removeBannerRequest, saveBannerRequest } from '../actions/banners-list-page.actions';
+import { bannerApiRemoveSuccess, bannersApiFindFail, bannersApiFindOneSuccess, bannersApiFindSuccess, referenceDataApiFindSuccess, removeBlobApiSuccess, saveBannerApiSuccess, uploadBlobApiSuccess } from '../actions/banners-api.actions';
 
 export const initialState: BannersState = adapter.getInitialState({
     bannersList: [],
@@ -38,7 +38,7 @@ export const bannersReducer = createReducer(
         imgSrc: `${blobPath}${element.fileId}?${Math.random()}`,
       };
     });
-    return adapter.addMany(newData.entities, {...state, total: newData.total, loading: false});
+    return adapter.setAll(newData.entities, {...state, total: newData.total, loading: false});
   }),
   on(bannersApiFindFail, (state) => {
     return {...state, errorDetected: false, loading: false};
@@ -49,8 +49,13 @@ export const bannersReducer = createReducer(
   on(bannerApiRemoveSuccess, (state, {id}) => {
     return adapter.removeOne(id, {...state, loading: false, total: state.total - 1})
   }),
-  on(editBannerRequest, (state, {bannerDetails}) => {
-    return {...state, bannerDetails: {...bannerDetails}}
+  on(editBannerRequest, (state) => {
+    return {...state, formLoading: true}
+  }),
+  on(bannersApiFindOneSuccess, (state, {bannerDetails}) => {
+    const updatedBannerDetails = {...bannerDetails}
+    updatedBannerDetails['imgSrc'] = `https://development.api.optio.ai/api/v2/blob/${bannerDetails.fileId}?${Math.random()}`
+    return {...state, bannerDetails: {...updatedBannerDetails}, formLoading: false}
   }),
   on(referenceDataFindRequest, (state) => {
     return {...state, loading: true}

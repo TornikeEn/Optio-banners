@@ -13,6 +13,10 @@ export interface BannersFindDto {
   searchAfter?: string[];
 }
 
+export interface BannersFindOneDto {
+  id: string;
+}
+
 export interface BannersSaveDto {
   id?: string;
   name?: string;

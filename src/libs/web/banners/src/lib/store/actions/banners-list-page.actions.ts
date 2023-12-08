@@ -13,7 +13,7 @@ export const removeBannerRequest = createAction(
 
 export const editBannerRequest = createAction(
   '[Drawer Component] edit banner requested',
-  props<{bannerDetails: any}>()
+  props<{bannerId: string}>()
 );
 
 export const referenceDataFindRequest = createAction(

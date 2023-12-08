@@ -1,6 +1,6 @@
 <div class="wrapper">
     <mat-sidenav-container class="sidenav-container">
-      <mat-sidenav #snav mode="over" position="end" disableClose>
+      <mat-sidenav #snav mode="over" position="end" [opened]="drawerOpened" disableClose>
         <app-banner-form 
           [blobPath]="blobPath"
           [editMode]="editMode"
@@ -25,7 +25,7 @@
         <mat-toolbar color="primary">
           <h1>Banners List</h1>
           <div class="spacer"></div>
-          <button *ngIf="!snav.opened" mat-raised-button (click)="snav.toggle();">Add New Banner</button>
+          <button *ngIf="!snav.opened" mat-raised-button (click)="snav.toggle(); onAddNewBanner()">Add New Banner</button>
         </mat-toolbar>
           <app-banners-list
             [blobPath]="blobPath"

@@ -16,6 +16,7 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
   
   export class DrawerPageComponent implements OnInit {
     blobPath: string = `${environment.apiUrl}/blob/`;
+    drawerOpened: boolean = false;
     displayedColumns: string[] = ['image', 'name', 'status', 'zone', 'startDate', 'endDate', 'labels', 'actions'];
   
     pageSizeOptions: number[] = [10, 30, 50];
@@ -37,6 +38,7 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
   
     fileId: any;
     editMode!: boolean;
+    selectedBannerId: string = '';
   
     selectChannels$ = this._store.select(selectChannels);
     selectZones$ = this._store.select(selectZones);
@@ -63,22 +65,36 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
         let savedFilterParams;
         if(Object.keys(queryParams).length === 0) {
           savedFilterParams = {
-            search: null,
+            search: '',
             sortBy: null,
             sortDirection: null,
             pageIndex: this.pageIndex,
-            pageSize: this.pageSize
+            pageSize: this.pageSize,
           };
         } else {
           savedFilterParams = queryParams;
+          this.pageSize = queryParams['pageSize'];
+          this.pageIndex = queryParams['pageIndex'];
         }
         this.filterParams = savedFilterParams;
+        this.drawerOpened = this.filterParams['drawerOpened'];
+        this.selectedBannerId = this.filterParams['bannerId'];
+        if(this.selectedBannerId) {
+          this._store.dispatch(editBannerRequest({bannerId: this.selectedBannerId}));
+        }
         this.getBannersList(this.filterParams);
       });
     }
   
     getBannersList(params: any) {
-      this._store.dispatch(queryParamsChanged({payload: params, blobPath: this.blobPath}));
+      const payload = {...params};
+      if(payload['drawerOpened']) {
+        delete payload['drawerOpened'];
+      }
+      if(payload['bannerId']) {
+        delete payload['bannerId'];
+      }
+      this._store.dispatch(queryParamsChanged({payload: payload, blobPath: this.blobPath}));
     }
   
     onfilterParamsChange(event: any) {
@@ -87,11 +103,31 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
       this.filterParams = event;
       this.router.navigate(['/'], {
         queryParams: {...event}
-      })
+      });
+    }
+
+    onAddNewBanner() {
+      this.drawerOpened = true;
+
+      const newFilterParams: {[index: string]:any}  = {};
+    
+      for (const key in this.filterParams) {
+        if (this.filterParams[key] !== null) {
+          newFilterParams[key] = this.filterParams[key];
+        }
+      }
+      this.filterParams = newFilterParams;
+      this.router.navigate(['/'], {
+        queryParams: {...this.filterParams, drawerOpened: this.drawerOpened}
+      });
     }
   
-    onOpenDrawer(bannerDetails: any) {
-      this._store.dispatch(editBannerRequest({bannerDetails}));
+    onOpenDrawer(bannerId: string) {
+      this.drawerOpened = true;
+      this._store.dispatch(editBannerRequest({bannerId}));
+      this.router.navigate(['/'], {
+        queryParams: {...this.filterParams, drawerOpened: this.drawerOpened, bannerId: bannerId}
+      });
     }
   
     onDeleteClicked(id: string) {
@@ -138,7 +174,14 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
         this.editMode = true;
         this._store.dispatch(queryParamsChanged({payload: this.filterParams, blobPath: this.blobPath}));
       }
+      this.drawerOpened = false;
+      if(this.filterParams['bannerId']) {
+        this.filterParams = {...this.filterParams}
+        delete this.filterParams['bannerId'];
+      }
+      this.router.navigate(['/'], {
+        queryParams: {...this.filterParams, drawerOpened: this.drawerOpened}
+      });
     }
-  
   }
   

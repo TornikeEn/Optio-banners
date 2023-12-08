@@ -80,7 +80,7 @@ export class BannersListComponent implements OnInit, OnDestroy {
   }
 
   onEdit(bannerDetails: any): void {
-    this.openDrawer.emit(bannerDetails);
+    this.openDrawer.emit(bannerDetails.id);
   }
 
   handleImageError(event: Event): void {

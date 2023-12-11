@@ -76,8 +76,8 @@ export class BannerFormComponent implements OnChanges, OnDestroy {
       this.bannerImageAvailable = true;
       this.bannerForm.patchValue({
         ...this.bannerDetails,
-        startDate: new Date(this.bannerDetails?.startDate),
-        endDate: new Date(this.bannerDetails?.endDate)
+        startDate: new Date(this.bannerDetails?.startDate.split('T')[0]),
+        endDate: new Date(this.bannerDetails?.endDate.split('T')[0])
       });
     }
 
@@ -153,7 +153,6 @@ export class BannerFormComponent implements OnChanges, OnDestroy {
     if(this.bannerForm.valid) {
       const payload = {...this.bannerForm.value};
       this.deleteNullProperties(payload);
-     
       //delete old image  
       if(this.editMode && this.selectedFile && this.bannerForm.value.fileId) {
           this.oldImageRemove.emit(payload);

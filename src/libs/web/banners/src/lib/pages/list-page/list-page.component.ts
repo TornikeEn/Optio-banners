@@ -180,7 +180,6 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
     }
 
     onSaveBannerRequest(payload: any) {
-      console.log(payload)
           this._store.dispatch(saveBannerRequest({payload}));
     }
   

@@ -114,7 +114,7 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
   
     getBannersList(params: any) {
       this._store.dispatch(queryParamsChanged({payload: params}));
-      this.oldQueryParams = {...this.filterParams}
+      this.oldQueryParams = {...params};
     }
   
     onfilterParamsChange(event: any) {

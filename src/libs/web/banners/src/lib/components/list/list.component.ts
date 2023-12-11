@@ -44,7 +44,8 @@ export class BannersListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.searchKeyUp$.pipe(debounceTime(1000), distinctUntilChanged()).subscribe((value: string) => {
       this.paginator.firstPage();
-      this.filterParamsChange.emit({...this.filterParams, search: value});   
+      this.pageIndex = 0;
+      this.filterParamsChange.emit({...this.filterParams, search: value, pageIndex: 0});   
     });
   }
 

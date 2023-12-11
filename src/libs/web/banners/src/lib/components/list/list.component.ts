@@ -52,14 +52,6 @@ export class BannersListComponent implements OnInit, OnDestroy {
     const searchValue = (event.target as HTMLInputElement).value;
     this.searchKeyUp$.next(searchValue);
   }
-  
-  sortByPropertyHandler(event: MatSelectChange): void {
-    this.filterParamsChange.emit({...this.filterParams, sortBy: event.value});
-  }
-
-  sortByDirectionHandler(event: MatSelectChange): void {
-    this.filterParamsChange.emit({...this.filterParams, sortDirection: event.value});
-  }
 
   onMatSortChange(sortState: Sort) {
     if (sortState.direction) {

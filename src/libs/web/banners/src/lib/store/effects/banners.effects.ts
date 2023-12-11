@@ -5,6 +5,7 @@ import * as bannersActions from '../actions/banners-list-page.actions';
 import * as bannersApiActions from '../actions/banners-api.actions';
 import { BannersApiService } from '../services/banners-api.service';
 import { ReferenceDataApiService } from '../services/reference-data-api.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class BannersEffects {
@@ -12,10 +13,10 @@ export class BannersEffects {
   findBanners$ = createEffect(() =>
     this.actions$.pipe(
       ofType(bannersActions.queryParamsChanged),
-      switchMap(({payload, blobPath}) => {
+      switchMap(({payload}) => {
         return this._bannersApiService.find(payload).pipe(
           map((res) => {
-            return bannersApiActions.bannersApiFindSuccess({ data: res.data, blobPath });
+            return bannersApiActions.bannersApiFindSuccess({ data: res.data });
           }),
           catchError((res) => {
             return of(bannersApiActions.bannersApiFindFail());
@@ -124,9 +125,21 @@ export class BannersEffects {
   )
 );
 
+ routerNavigate$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(bannersActions.routerNavigateRequested),
+    tap(({queryParams}) => {
+        this._router.navigate(['/'], {
+          queryParams: queryParams
+        });
+      })
+  ), { dispatch: false }
+);
+
   constructor(
     private actions$: Actions,
     private _bannersApiService: BannersApiService,
     private _referenceDataApiService: ReferenceDataApiService,
+    private _router: Router
   ) {}
 }

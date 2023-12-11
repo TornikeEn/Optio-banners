@@ -22,12 +22,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { DrawerPageComponent } from './pages/drawer/drawer.component';
+import { DrawerPageComponent } from './pages/list-page/list-page.component';
 import { BannerFormComponent } from './components/form/form.component';
 import { BannersListComponent } from './components/list/list.component';
 
 import { BannersEffects } from './store/effects/banners.effects';
 import { bannersReducer } from './store/reducer/banners.reducer';
+import { MatSortModule } from '@angular/material/sort';
 
 const components = [
   DrawerPageComponent,
@@ -41,6 +42,7 @@ const angularMaterialModules = [
   MatListModule,
   MatTableModule,
   MatPaginatorModule,
+  MatSortModule,
   MatFormFieldModule,
   MatInputModule,
   MatSelectModule,

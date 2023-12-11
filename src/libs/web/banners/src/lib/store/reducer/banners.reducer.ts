@@ -1,9 +1,11 @@
 import { createReducer, on } from '@ngrx/store';
+import { environment } from 'src/environments/environment';
 import { BannersState, adapter } from '../state';
 import { editBannerRequest, queryParamsChanged, referenceDataFindRequest, removeBannerRequest, saveBannerRequest } from '../actions/banners-list-page.actions';
 import { bannerApiRemoveSuccess, bannersApiFindFail, bannersApiFindOneSuccess, bannersApiFindSuccess, referenceDataApiFindSuccess, removeBlobApiSuccess, saveBannerApiSuccess, uploadBlobApiSuccess } from '../actions/banners-api.actions';
 
 export const initialState: BannersState = adapter.getInitialState({
+    blobPath: `${environment.apiUrl}/blob/`,
     bannersList: [],
     total: 0,
     errorDetected: false,
@@ -18,6 +20,7 @@ export const initialState: BannersState = adapter.getInitialState({
     zones: [],
     labels: [],
     languages: [],
+    zonesDisplayObj: null,
     removeBannerImageResponse: null,
     saveBannerResponse: null,
     uploadBannerImageResponse: null,
@@ -29,13 +32,13 @@ export const bannersReducer = createReducer(
   on(queryParamsChanged, (state) => {
     return {...state, loading: true}
   }),
-  on(bannersApiFindSuccess, (state, { data, blobPath }) => {
+  on(bannersApiFindSuccess, (state, { data }) => {
     let newEntities = [...data.entities];
     let newData = {...data, entities: newEntities};
     newData.entities = newData.entities.map((element: any) => {
       return {
         ...element,
-        imgSrc: `${blobPath}${element.fileId}?${Math.random()}`,
+        imgSrc: `${state.blobPath}${element.fileId}?${Math.random()}`,
       };
     });
     return adapter.setAll(newData.entities, {...state, total: newData.total, loading: false});
@@ -54,7 +57,7 @@ export const bannersReducer = createReducer(
   }),
   on(bannersApiFindOneSuccess, (state, {bannerDetails}) => {
     const updatedBannerDetails = {...bannerDetails}
-    updatedBannerDetails['imgSrc'] = `https://development.api.optio.ai/api/v2/blob/${bannerDetails.fileId}?${Math.random()}`
+    updatedBannerDetails['imgSrc'] = `${state.blobPath}${bannerDetails.fileId}?${Math.random()}`
     return {...state, bannerDetails: {...updatedBannerDetails}, formLoading: false}
   }),
   on(referenceDataFindRequest, (state) => {
@@ -62,10 +65,14 @@ export const bannersReducer = createReducer(
   }),
   on(referenceDataApiFindSuccess, (state, {refData}) => {
     const channels = refData.entities.filter((element: any) => element.typeId === state.channelTypeId);
-    const zones = refData.entities.filter((element: any) => element.typeId === state.channelTypeId);
-    const labels = refData.entities.filter((element: any) => element.typeId === state.channelTypeId);
-    const languages = refData.entities.filter((element: any) => element.typeId === state.channelTypeId);
-    return {...state, channels, zones, labels, languages, loading: false}
+    const zones = refData.entities.filter((element: any) => element.typeId === state.zoneTypeId);
+    const labels = refData.entities.filter((element: any) => element.typeId === state.labelTypeId);
+    const languages = refData.entities.filter((element: any) => element.typeId === state.languageTypeId);
+    const zonesDisplayObj: Record<string, string> = {};
+    zones.forEach(({ key, name }: { key: string, name: string }) => {
+      zonesDisplayObj[key] = name;
+    });
+    return {...state, channels, zones, labels, languages, zonesDisplayObj, loading: false}
   }),
   on(removeBlobApiSuccess, (state, {response}) => {
     return {...state, removeBannerImageResponse: response}
@@ -78,7 +85,7 @@ export const bannersReducer = createReducer(
   }),
   on(saveBannerApiSuccess, (state, {response}) => {
       const updatedBannerDetails = {...response.data}
-      updatedBannerDetails['imgSrc'] = `https://development.api.optio.ai/api/v2/blob/${response.data.fileId}?${Math.random()}`
+      updatedBannerDetails['imgSrc'] = `${state.blobPath}${response.data.fileId}?${Math.random()}`
       return adapter.upsertOne(updatedBannerDetails, {...state, saveBannerResponse: response, total: state.total + 1, formLoading: false})
   })
 );

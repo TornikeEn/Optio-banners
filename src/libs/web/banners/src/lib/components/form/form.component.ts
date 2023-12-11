@@ -15,8 +15,6 @@ import { BannersState } from '../../store/state';
 })
 
 export class BannerFormComponent implements OnChanges, OnDestroy {  
-  @Input() blobPath: string = '';
-
   @Input() editMode: boolean = false;
 
   @Input() channels!: any[];
@@ -78,8 +76,8 @@ export class BannerFormComponent implements OnChanges, OnDestroy {
       this.bannerImageAvailable = true;
       this.bannerForm.patchValue({
         ...this.bannerDetails,
-        startDate: new Date(this.bannerDetails?.startDate?.split('T')[0]),
-        endDate: new Date(this.bannerDetails?.endDate?.split('T')[0])
+        startDate: new Date(this.bannerDetails?.startDate),
+        endDate: new Date(this.bannerDetails?.endDate)
       });
     }
 

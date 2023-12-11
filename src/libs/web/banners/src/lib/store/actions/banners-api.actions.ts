@@ -2,7 +2,7 @@ import { createAction, props } from '@ngrx/store';
 
 export const bannersApiFindSuccess = createAction(
     '[Banners Api] find successed',
-    props<{data: any, blobPath: string}>()
+    props<{data: any}>()
   );
   
 export const bannersApiFindFail = createAction(

@@ -22,15 +22,22 @@
     }
   }
   
-  .text-left {
-    text-align: start !important;
-  }
-  
   mat-paginator {
     padding: 16px 16px 16px 0;
     background-color: transparent;
     border-top: 1px solid #cecece;
     border-radius: 0 0 10px 10px;
+  }
+
+  :host ::ng-deep {
+    .mat-sort-header-container {
+      justify-content: center;
+    }
+    .text-left{
+      .mat-sort-header-container {
+        justify-content: start;
+      }
+    }
   }
   
   .list-filters {

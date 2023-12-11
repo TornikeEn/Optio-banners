@@ -1,8 +1,7 @@
 <div class="wrapper">
     <mat-sidenav-container class="sidenav-container">
-      <mat-sidenav #snav mode="over" position="end" [opened]="drawerOpened" disableClose>
+      <mat-sidenav mode="over" position="end" [opened]="drawerOpened" disableClose>
         <app-banner-form 
-          [blobPath]="blobPath"
           [editMode]="editMode"
           [channels]="selectChannels$ | async"
           [zones]="selectZones$ | async"
@@ -18,17 +17,17 @@
           (oldImageRemove)="onOldImageRemove($event)"
           (newImageUpload)="onNewImageUpload($event)"
           (saveBannerRequest)="onSaveBannerRequest($event)"
-          (collapse)="snav.toggle(); onCollapse()"
+          (collapse)="onCollapse()"
         ></app-banner-form>
       </mat-sidenav>
       <mat-sidenav-content>
         <mat-toolbar color="primary">
           <h1>Banners List</h1>
           <div class="spacer"></div>
-          <button *ngIf="!snav.opened" mat-raised-button (click)="snav.toggle(); onAddNewBanner()">Add New Banner</button>
+          <button *ngIf="!drawerOpened" mat-raised-button (click)="onAddNewBanner()">Add New Banner</button>
         </mat-toolbar>
           <app-banners-list
-            [blobPath]="blobPath"
+            [blobPath]="blobPathSelector$ | async"
             [displayedColumns]="displayedColumns"
             [pageSizeOptions]="pageSizeOptions"
             [pageSize]="pageSize"
@@ -36,9 +35,10 @@
             [filterParams]="filterParams"
             [bannersList]="bannersListSelector$ | async"
             [total]="totalSelector$ | async"
+            [zonesDisplayObj]="selectZonesDisplayObj$ | async"
             [errorDetected]="errorDetectedSelector$ | async"
             [loading]="selectLoading$ | async"
-            (openDrawer)="snav.toggle(); onOpenDrawer($event)"
+            (openDrawer)="onOpenDrawer($event)"
             (filterParamsChange)="onfilterParamsChange($event)"
             (deleteClicked)="onDeleteClicked($event)"
           ></app-banners-list>

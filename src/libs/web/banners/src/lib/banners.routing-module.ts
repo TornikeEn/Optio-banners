@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { DrawerPageComponent } from './pages/drawer/drawer.component';
+import { DrawerPageComponent } from './pages/list-page/list-page.component';
 
 
 const routes: Routes = [

@@ -1,21 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { environment } from 'src/environments/environment';
-
 import { BannersState } from '../../store/state';
-import { selectBannerInfo, selectBannersList, selectChannels, selectErrorDetected, selectFormLoading, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectTotal, selectUploadBannerImageResponse, selectZones } from 'src/libs/web/banners/src/lib/store/selectors/banners.selector';
-import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, removeBannerRequest, removeBannerImageRequest, uploadBannerImageRequest, saveBannerRequest } from 'src/libs/web/banners/src/lib/store/actions/banners-list-page.actions';
+import { selectBannerInfo, selectBannersList, selectBlobPath, selectChannels, selectErrorDetected, selectFormLoading, selectLabels, selectLanguages, selectLoading, selectRemoveBannerImageResponse, selectSaveBannerResponse, selectTotal, selectUploadBannerImageResponse, selectZones, selectZonesDisplayObj } from 'src/libs/web/banners/src/lib/store/selectors/banners.selector';
+import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, removeBannerRequest, removeBannerImageRequest, uploadBannerImageRequest, saveBannerRequest, routerNavigateRequested } from 'src/libs/web/banners/src/lib/store/actions/banners-list-page.actions';
 
 @Component({
-    selector: 'app-drawer',
-    templateUrl: './drawer.component.html',
-    styleUrls: ['./drawer.component.scss']
+    selector: 'app-list-page',
+    templateUrl: './list-page.component.html',
+    styleUrls: ['./list-page.component.scss']
   })
   
   export class DrawerPageComponent implements OnInit {
-    blobPath: string = `${environment.apiUrl}/blob/`;
     drawerOpened: boolean = false;
     displayedColumns: string[] = ['image', 'name', 'status', 'zone', 'startDate', 'endDate', 'labels', 'actions'];
   
@@ -23,8 +20,11 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
     pageSize: number = 10;
     pageIndex: number = 0;
   
+    oldQueryParams!: Record<string,any>;
     filterParams!: Record<string,any>;
   
+    blobPathSelector$ = this._store.select(selectBlobPath);
+
     bannersListSelector$ = this._store.select(selectBannersList);
     totalSelector$ = this._store.select(selectTotal);
     errorDetectedSelector$ = this._store.select(selectErrorDetected);
@@ -42,6 +42,7 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
   
     selectChannels$ = this._store.select(selectChannels);
     selectZones$ = this._store.select(selectZones);
+    selectZonesDisplayObj$ = this._store.select(selectZonesDisplayObj);
     selectLabels$ = this._store.select(selectLabels);
     selectLanguages$ = this._store.select(selectLanguages);
   
@@ -53,11 +54,11 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
   
   
   
-    constructor(private _store: Store<BannersState>, private route: ActivatedRoute, private router: Router) {}
+    constructor(private _store: Store<BannersState>, private route: ActivatedRoute) {}
   
     ngOnInit(): void {
-      this.getFilterParams();
       this.getReferenceData();
+      this.getFilterParams();
     }
 
     getFilterParams(): void {
@@ -66,44 +67,62 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
         if(Object.keys(queryParams).length === 0) {
           savedFilterParams = {
             search: '',
-            sortBy: null,
-            sortDirection: null,
             pageIndex: this.pageIndex,
             pageSize: this.pageSize,
           };
+          // this.oldQueryParams = savedFilterParams;
         } else {
           savedFilterParams = queryParams;
           this.pageSize = queryParams['pageSize'];
           this.pageIndex = queryParams['pageIndex'];
         }
         this.filterParams = savedFilterParams;
-        this.drawerOpened = this.filterParams['drawerOpened'];
+        this.drawerOpened = this.filterParams['drawerOpened'] === 'true' ? true : false;
         this.selectedBannerId = this.filterParams['bannerId'];
         if(this.selectedBannerId) {
           this._store.dispatch(editBannerRequest({bannerId: this.selectedBannerId}));
         }
-        this.getBannersList(this.filterParams);
+        this.filterParams = {...this.filterParams};
+        if(this.filterParams['drawerOpened']) {
+          delete this.filterParams['drawerOpened'];
+        }
+        if(this.filterParams['bannerId']) {
+          delete this.filterParams['bannerId'];
+        }
+        if(this.areQueryParamsEqual(this.oldQueryParams, this.filterParams) === false) {
+          this.getBannersList(this.filterParams);
+        }
       });
+    }
+
+    areQueryParamsEqual(params1: any, params2: any): boolean {
+      if(!params1 || !params2) {
+        return false;
+      }
+
+      const keys = Object.keys(params2);
+
+      for (const key of keys) {
+        if (params1[key] != params2[key]) {
+          // Values are different
+          return false;
+        }
+      }
+      // All values are equal
+      return true;
     }
   
     getBannersList(params: any) {
-      const payload = {...params};
-      if(payload['drawerOpened']) {
-        delete payload['drawerOpened'];
-      }
-      if(payload['bannerId']) {
-        delete payload['bannerId'];
-      }
-      this._store.dispatch(queryParamsChanged({payload: payload, blobPath: this.blobPath}));
+      this._store.dispatch(queryParamsChanged({payload: params}));
+      this.oldQueryParams = {...this.filterParams}
     }
   
     onfilterParamsChange(event: any) {
       this.pageIndex = event.pageIndex;
       this.pageSize = event.pageSize;
+      this.oldQueryParams = {...this.filterParams}
       this.filterParams = event;
-      this.router.navigate(['/'], {
-        queryParams: {...event}
-      });
+      this._store.dispatch(routerNavigateRequested({queryParams: {...event}}));
     }
 
     onAddNewBanner() {
@@ -117,17 +136,12 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
         }
       }
       this.filterParams = newFilterParams;
-      this.router.navigate(['/'], {
-        queryParams: {...this.filterParams, drawerOpened: this.drawerOpened}
-      });
+      this._store.dispatch(routerNavigateRequested({queryParams: {...this.filterParams, drawerOpened: this.drawerOpened}}));
     }
   
     onOpenDrawer(bannerId: string) {
       this.drawerOpened = true;
-      this._store.dispatch(editBannerRequest({bannerId}));
-      this.router.navigate(['/'], {
-        queryParams: {...this.filterParams, drawerOpened: this.drawerOpened, bannerId: bannerId}
-      });
+      this._store.dispatch(routerNavigateRequested({queryParams: {...this.filterParams, drawerOpened: this.drawerOpened, bannerId: bannerId}}));
     }
   
     onDeleteClicked(id: string) {
@@ -172,16 +186,14 @@ import { queryParamsChanged, referenceDataFindRequest, editBannerRequest, remove
     onCollapse() {
       if(this.editMode && this.fileId === null) {
         this.editMode = true;
-        this._store.dispatch(queryParamsChanged({payload: this.filterParams, blobPath: this.blobPath}));
+        this._store.dispatch(queryParamsChanged({payload: this.filterParams}));
       }
       this.drawerOpened = false;
       if(this.filterParams['bannerId']) {
         this.filterParams = {...this.filterParams}
         delete this.filterParams['bannerId'];
       }
-      this.router.navigate(['/'], {
-        queryParams: {...this.filterParams, drawerOpened: this.drawerOpened}
-      });
+      this._store.dispatch(routerNavigateRequested({queryParams: {...this.filterParams, drawerOpened: this.drawerOpened}}));
     }
   }
   

@@ -44,6 +44,10 @@ export const selectZones = createSelector(
     selectBannersState,
     (state: BannersState) => state.zones
 )
+export const selectZonesDisplayObj = createSelector(
+    selectBannersState,
+    (state: BannersState) => state.zonesDisplayObj
+)
 
 export const selectLabels = createSelector(
     selectBannersState,
@@ -68,4 +72,9 @@ export const selectSaveBannerResponse = createSelector(
 export const selectUploadBannerImageResponse = createSelector(
     selectBannersState,
     (state: BannersState) => state.uploadBannerImageResponse
+)
+
+export const selectBlobPath = createSelector(
+    selectBannersState,
+    (state: BannersState) => state.blobPath
 )

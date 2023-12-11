@@ -5,6 +5,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
+import { Sort } from '@angular/material/sort';
 
 import { ConfirmationDialogComponent } from 'src/libs/web/shared/src/components/confirmation-dialog.component';
 
@@ -15,7 +16,7 @@ import { ConfirmationDialogComponent } from 'src/libs/web/shared/src/components/
 })
 
 export class BannersListComponent implements OnInit, OnDestroy {
-  @Input() blobPath!: string;
+  @Input() blobPath: string | null = null;
   @Input() displayedColumns!: string[];
 
   @Input() pageSizeOptions!: number[];
@@ -26,6 +27,7 @@ export class BannersListComponent implements OnInit, OnDestroy {
 
   @Input() bannersList: any;
   @Input() total: any;
+  @Input() zonesDisplayObj: any;
   @Input() errorDetected: any;
   @Input() loading: any;
 
@@ -42,8 +44,8 @@ export class BannersListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.searchKeyUp$.pipe(debounceTime(1000), distinctUntilChanged()).subscribe((value: string) => {
       this.paginator.firstPage();
-      this.filterParamsChange.emit({...this.filterParams, search: value});
-    });  
+      this.filterParamsChange.emit({...this.filterParams, search: value});   
+    });
   }
 
   applySearch(event: Event) {
@@ -57,6 +59,34 @@ export class BannersListComponent implements OnInit, OnDestroy {
 
   sortByDirectionHandler(event: MatSelectChange): void {
     this.filterParamsChange.emit({...this.filterParams, sortDirection: event.value});
+  }
+
+  onMatSortChange(sortState: Sort) {
+    if (sortState.direction) {
+      switch (sortState.active) {
+        case 'name':
+          this.filterParams = {...this.filterParams, sortDirection: sortState.direction, sortBy: 'name.raw'};
+          break;
+        case 'status':
+          this.filterParams = {...this.filterParams, sortDirection: sortState.direction, sortBy: 'active'};
+          break;
+        case 'zone':
+          this.filterParams = {...this.filterParams, sortDirection: sortState.direction, sortBy: 'zoneId'};
+          break;
+        case 'startDate':
+          this.filterParams = {...this.filterParams, sortDirection: sortState.direction, sortBy: sortState.active};
+          break;
+        case 'endDate':
+          this.filterParams = {...this.filterParams, sortDirection: sortState.direction, sortBy: sortState.active};
+          break;
+        default:
+          this.filterParams = {...this.filterParams, sortDirection: null, sortBy: null};
+          break;
+      }
+    } else {
+      this.filterParams = {...this.filterParams, sortDirection: null, sortBy: null};
+    }
+    this.filterParamsChange.emit({...this.filterParams});
   }
 
   changePageHandler(event: PageEvent) {

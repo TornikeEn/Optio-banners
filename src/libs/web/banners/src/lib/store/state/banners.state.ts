@@ -1,7 +1,4 @@
 import { EntityAdapter, EntityState, createEntityAdapter } from "@ngrx/entity";
-export interface BannerList {
-  bannersList: Banner[];
-}
 
 export interface Banner {
   id: number;
@@ -18,7 +15,12 @@ export interface Banner {
   priority: string;
 }
 
+export interface BannerList {
+  bannersList: Banner[];
+}
+
 export interface BannersState extends EntityState<BannerList> {
+    blobPath: string;
     total: number;
     errorDetected: boolean;
     loading: boolean;
@@ -32,6 +34,7 @@ export interface BannersState extends EntityState<BannerList> {
     zones: any;
     labels: any;
     languages: any;
+    zonesDisplayObj: any;
     removeBannerImageResponse: any;
     saveBannerResponse: any;
     uploadBannerImageResponse: any;
